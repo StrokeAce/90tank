@@ -1089,8 +1089,18 @@ var Maps = {
 
   parseMap: function(stringArray) {
     var terrain = [];
+    var originalCols = 26;
+    var newCols = 44;
+    var extraCols = newCols - originalCols;
+    var leftPad = Math.floor(extraCols / 2);
+    
     for (var i = 0; i < stringArray.length; i++) {
       var row = [];
+      // 左边补空
+      for (var k = 0; k < leftPad; k++) {
+        row.push(0);
+      }
+      // 原有地图
       for (var j = 0; j < stringArray[i].length; j++) {
         var ch = stringArray[i].charAt(j);
         switch (ch) {
@@ -1101,6 +1111,10 @@ var Maps = {
           case 'I': row.push(5); break;
           default:  row.push(0); break;
         }
+      }
+      // 右边补空
+      while (row.length < newCols) {
+        row.push(0);
       }
       terrain.push(row);
     }

@@ -26,21 +26,19 @@ Renderer.prototype.init = function(mainCanvas) {
 };
 
 Renderer.prototype._calculateLayout = function() {
-  // 让地图尽可能填满屏幕，但底部留空间给控制按钮
-  var availableHeight = this.screenHeight - 140;
-  
+  // 长方形地图，直接填满屏幕
   var mapWidthScaled = CONFIG.TILE.MAP_WIDTH_SCALED;
   var mapHeightScaled = CONFIG.TILE.MAP_HEIGHT_SCALED;
   
-  var scaleX = this.screenWidth / mapWidthScaled;
-  var scaleY = availableHeight / mapHeightScaled;
-  this.scale = Math.min(scaleX, scaleY);
+  // 按屏幕高度来缩放，让地图高度刚好填满（留底部空间给控制按钮）
+  var availableHeight = this.screenHeight - 140;
+  this.scale = availableHeight / mapHeightScaled;
 
   var renderedW = mapWidthScaled * this.scale;
   var renderedH = mapHeightScaled * this.scale;
   
-  // 水平居中，垂直靠上但留底部空间给控制
-  this.offsetX = Math.floor((this.screenWidth - renderedW) / 2);
+  // 水平居中，垂直靠上
+  this.offsetX = (this.screenWidth - renderedW) / 2;
   this.offsetY = 10;
 
   this.mapOffsetX = this.offsetX;
@@ -127,7 +125,7 @@ Renderer.prototype.renderExplosion = function(explosion) {
   this.ctx.restore();
 };
 
-Renderer.prototype.renderPowerUp = function(powerup) {
+Renderer.prototype.renderPowerup = function(powerup) {
   this.ctx.save();
   this.ctx.translate(this.mapOffsetX, this.mapOffsetY);
   this.ctx.scale(this.scale, this.scale);

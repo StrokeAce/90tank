@@ -10,7 +10,7 @@ function GameMap() {
   this.tileSize = CONFIG.TILE.TILE_SIZE_SCALED;
   this.eagleAlive = true;
   this.eagleRow = 24;
-  this.eagleCol = 12;
+  this.eagleCol = 21; // 原来12 + 9 = 21
   this.waterFrame = 0;
   this.waterFrameTimer = 0;
   this.waterFrameInterval = 400;

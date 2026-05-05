@@ -11,17 +11,17 @@ var CONFIG = {
   TILE: {
     CELL_SIZE: 8,
     TILE_SIZE: 16,
-    SCALE: 2.0,
-    GRID_COLS: 26,
+    SCALE: 1.5,
+    GRID_COLS: 44,
     GRID_ROWS: 26,
-    BIG_TILE_COLS: 13,
+    BIG_TILE_COLS: 22,
     BIG_TILE_ROWS: 13,
-    MAP_WIDTH: 208,
+    MAP_WIDTH: 352,
     MAP_HEIGHT: 208,
-    CELL_SIZE_SCALED: 16,
-    TILE_SIZE_SCALED: 32,
-    MAP_WIDTH_SCALED: 416,
-    MAP_HEIGHT_SCALED: 416,
+    CELL_SIZE_SCALED: 12,
+    TILE_SIZE_SCALED: 24,
+    MAP_WIDTH_SCALED: 528,
+    MAP_HEIGHT_SCALED: 312,
     MAP_OFFSET_X: 0,
     MAP_OFFSET_Y: 0,
     INFO_PANEL_WIDTH: 0,
@@ -30,9 +30,9 @@ var CONFIG = {
 
   TANK: {
     SIZE: 16,
-    SIZE_SCALED: 32,
+    SIZE_SCALED: 24,
     HALF_SIZE: 8,
-    HALF_SIZE_SCALED: 16,
+    HALF_SIZE_SCALED: 12,
 
     PLAYER_SPEEDS: [90, 120, 150, 180],
     PLAYER_BULLET_SPEEDS: [240, 240, 300, 300],
@@ -61,7 +61,7 @@ var CONFIG = {
     ENEMY_ARMOR_FIRE_RATE: 45,
 
     BULLET_SIZE: 4,
-    BULLET_SIZE_SCALED: 8,
+    BULLET_SIZE_SCALED: 6,
     SPAWN_FLASH_DURATION: 500,
     SPAWN_FLASH_INTERVAL: 80
   },
@@ -184,13 +184,13 @@ var CONFIG = {
     POWERUP_SPAWN_ENEMY_COUNT: 8,
     ENEMY_SPAWN_INTERVAL: 3000,
     ENEMY_SPAWN_POINTS: [
-      { x: 0, y: 0 },
-      { x: 12, y: 0 },
-      { x: 24, y: 0 }
+      { x: 9, y: 0 },
+      { x: 21, y: 0 },
+      { x: 33, y: 0 }
     ],
-    PLAYER1_SPAWN: { x: 8, y: 24 },
-    PLAYER2_SPAWN: { x: 16, y: 24 },
-    EAGLE_POSITION: { x: 12, y: 24 },
+    PLAYER1_SPAWN: { x: 17, y: 24 },
+    PLAYER2_SPAWN: { x: 25, y: 24 },
+    EAGLE_POSITION: { x: 21, y: 24 },
     MAX_PLAYER_STARS: 3,
     ARMOR_FLASH_DURATION: 100,
     STAGE_INTRO_DURATION: 2000,
