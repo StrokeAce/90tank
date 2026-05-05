@@ -20,6 +20,18 @@ const DIRECTION_RIGHT = 1;
 const DIRECTION_DOWN = 2;
 const DIRECTION_LEFT = 3;
 
+const POWERUP_CLOCK = 'clock';
+const POWERUP_GRENADE = 'grenade';
+const POWERUP_HELMET = 'helmet';
+const POWERUP_SHOVEL = 'shovel';
+const POWERUP_TANK = 'tank';
+const POWERUP_STAR = 'star';
+
+const POWERUP_TYPES = [
+  POWERUP_CLOCK, POWERUP_GRENADE, POWERUP_HELMET,
+  POWERUP_SHOVEL, POWERUP_TANK, POWERUP_STAR
+];
+
 const LEVELS = [
   require('../../utils/levels/level1.js'),
   require('../../utils/levels/level2.js'),
@@ -58,12 +70,13 @@ const DIFFICULTY_CONFIG = {
 };
 
 class Tank {
-  constructor(x, y, direction, isPlayer, playerId = 1) {
+  constructor(x, y, direction, isPlayer, playerId) {
     this.x = x;
     this.y = y;
     this.direction = direction;
+    this.turretAngle = direction * Math.PI / 2;
     this.isPlayer = isPlayer;
-    this.playerId = playerId;
+    this.playerId = playerId || 1;
     this.speed = isPlayer ? 2 : 1.5;
     this.width = TILE_SIZE - 4;
     this.height = TILE_SIZE - 4;
@@ -76,9 +89,9 @@ class Tank {
     this.superBulletTime = 0;
     this.isInvincible = false;
     this.invincibleTime = 0;
-    this.moveHistory = [];
-    this.lastMoveTime = 0;
-    this.fastMove = false;
+    this.starLevel = 0;
+    this.shieldActive = false;
+    this.shieldTime = 0;
   }
 
   update(currentTime, map, tanks) {
@@ -92,8 +105,12 @@ class Tank {
       this.hasSuperBullet = false;
     }
 
+    if (this.shieldActive && currentTime > this.shieldTime) {
+      this.shieldActive = false;
+    }
+
     if (this.isMoving) {
-      const speed = this.fastMove ? this.speed * 1.5 : this.speed;
+      const speed = this.starLevel >= 2 ? this.speed * 1.5 : this.speed;
       let newX = this.x;
       let newY = this.y;
 
@@ -108,22 +125,7 @@ class Tank {
         this.x = newX;
         this.y = newY;
       }
-
-      if (this.isPlayer) {
-        const historyKey = `${this.direction}-${Math.floor(currentTime / 100)}`;
-        if (this.moveHistory[this.moveHistory.length - 1] === historyKey) {
-          if (currentTime - this.lastMoveTime < 200) {
-            this.fastMove = true;
-          }
-        } else {
-          this.moveHistory.push(historyKey);
-          if (this.moveHistory.length > 5) this.moveHistory.shift();
-        }
-        this.lastMoveTime = currentTime;
-      }
     }
-
-    this.fastMove = false;
   }
 
   checkCollision(x, y, map, tanks) {
@@ -131,6 +133,10 @@ class Tank {
     const right = x + this.width;
     const top = y;
     const bottom = y + this.height;
+
+    if (left < 0 || right > CANVAS_WIDTH || top < 0 || bottom > CANVAS_HEIGHT) {
+      return true;
+    }
 
     for (let ty = 0; ty < MAP_HEIGHT; ty++) {
       for (let tx = 0; tx < MAP_WIDTH; tx++) {
@@ -150,7 +156,7 @@ class Tank {
 
     for (const tank of tanks) {
       if (tank !== this && tank.isAlive) {
-        if (right > tank.x && left < tank.x + tank.width && 
+        if (right > tank.x && left < tank.x + tank.width &&
             bottom > tank.y && top < tank.y + tank.height) {
           return true;
         }
@@ -169,7 +175,9 @@ class Tank {
     let bulletX = this.x + this.width / 2;
     let bulletY = this.y + this.height / 2;
 
-    switch (this.direction) {
+    const fireDir = this.isPlayer ? this.getDirectionFromAngle(this.turretAngle) : this.direction;
+
+    switch (fireDir) {
       case DIRECTION_UP: bulletY = this.y - 4; break;
       case DIRECTION_DOWN: bulletY = this.y + this.height + 4; break;
       case DIRECTION_LEFT: bulletX = this.x - 4; break;
@@ -179,12 +187,21 @@ class Tank {
     return {
       x: bulletX,
       y: bulletY,
-      direction: this.direction,
-      speed: 5,
+      direction: fireDir,
+      speed: this.starLevel >= 1 ? 7 : 5,
       isPlayerBullet: this.isPlayer,
       playerId: this.playerId,
-      isSuper: this.hasSuperBullet
+      isSuper: this.hasSuperBullet || this.starLevel >= 3
     };
+  }
+
+  getDirectionFromAngle(angle) {
+    const normalized = ((angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    const deg = normalized * 180 / Math.PI;
+    if (deg < 45 || deg >= 315) return DIRECTION_UP;
+    if (deg >= 45 && deg < 135) return DIRECTION_RIGHT;
+    if (deg >= 135 && deg < 225) return DIRECTION_DOWN;
+    return DIRECTION_LEFT;
   }
 
   getHitbox() {
@@ -198,14 +215,14 @@ class Tank {
 }
 
 class Bullet {
-  constructor(x, y, direction, speed, isPlayerBullet, playerId, isSuper = false) {
+  constructor(x, y, direction, speed, isPlayerBullet, playerId, isSuper) {
     this.x = x;
     this.y = y;
     this.direction = direction;
     this.speed = speed;
     this.isPlayerBullet = isPlayerBullet;
     this.playerId = playerId;
-    this.isSuper = isSuper;
+    this.isSuper = isSuper || false;
     this.size = 4;
     this.isAlive = true;
   }
@@ -233,8 +250,35 @@ class Bullet {
   }
 }
 
+class PowerUp {
+  constructor(x, y, type) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    this.size = TILE_SIZE;
+    this.isAlive = true;
+    this.spawnTime = Date.now();
+    this.duration = 15000;
+  }
+
+  update(currentTime) {
+    if (currentTime - this.spawnTime > this.duration) {
+      this.isAlive = false;
+    }
+  }
+
+  getHitbox() {
+    return {
+      left: this.x,
+      right: this.x + this.size,
+      top: this.y,
+      bottom: this.y + this.size
+    };
+  }
+}
+
 class EnemyTank extends Tank {
-  constructor(x, y, direction, config) {
+  constructor(x, y, direction, config, type) {
     super(x, y, direction, false);
     this.speed = config.enemySpeed;
     this.fireRate = config.enemyFireRate;
@@ -244,10 +288,18 @@ class EnemyTank extends Tank {
     this.patrolTime = 0;
     this.thinkTime = 0;
     this.targetDirection = direction;
-    this.isInBase = false;
-    this.type = ['basic', 'fast', 'power'][Math.floor(Math.random() * 3)];
+    this.type = type || ['basic', 'fast', 'power', 'armor'][Math.floor(Math.random() * 4)];
     this.lastFireTime = 0;
-    this.fireInterval = 1000;
+    this.isFlashing = Math.random() < 0.15;
+    this.flashTimer = 0;
+
+    if (this.type === 'fast') {
+      this.speed = config.enemySpeed * 1.5;
+    } else if (this.type === 'armor') {
+      this.speed = config.enemySpeed * 0.7;
+      this.width = TILE_SIZE - 2;
+      this.height = TILE_SIZE - 2;
+    }
   }
 
   updateAI(currentTime, map, playerTanks, basePos, allEnemies) {
@@ -255,8 +307,12 @@ class EnemyTank extends Tank {
 
     this.update(currentTime, map, []);
 
+    if (this.isFlashing) {
+      this.flashTimer = currentTime;
+    }
+
     let bullet = null;
-    if (currentTime - this.lastFireTime >= this.fireInterval) {
+    if (currentTime - this.lastFireTime >= this.fireRate) {
       this.lastFireTime = currentTime;
       bullet = this.fire([], currentTime);
       if (bullet) {
@@ -283,66 +339,27 @@ class EnemyTank extends Tank {
 
     let newX = this.x;
     let newY = this.y;
-    const speed = this.type === 'fast' ? this.speed * 1.3 : this.speed;
 
     switch (this.direction) {
-      case DIRECTION_UP: newY -= speed; break;
-      case DIRECTION_DOWN: newY += speed; break;
-      case DIRECTION_LEFT: newX -= speed; break;
-      case DIRECTION_RIGHT: newX += speed; break;
+      case DIRECTION_UP: newY -= this.speed; break;
+      case DIRECTION_DOWN: newY += this.speed; break;
+      case DIRECTION_LEFT: newX -= this.speed; break;
+      case DIRECTION_RIGHT: newX += this.speed; break;
     }
 
     if (!this.checkCollision(newX, newY, map, allEnemies || [])) {
-        this.x = newX;
-        this.y = newY;
-      } else {
-        this.targetDirection = Math.floor(Math.random() * 4);
-        this.direction = this.targetDirection;
-      }
+      this.x = newX;
+      this.y = newY;
+    } else {
+      this.targetDirection = Math.floor(Math.random() * 4);
+      this.direction = this.targetDirection;
+    }
 
     if (this.type === 'power' && Math.random() < 0.3) {
       this.hasSuperBullet = true;
     }
 
     return bullet;
-  }
-
-  shouldFire(playerTanks, map) {
-    for (const player of playerTanks) {
-      if (!player.isAlive) continue;
-
-      const dx = player.x - this.x;
-      const dy = player.y - this.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < 200) {
-        if ((this.direction === DIRECTION_UP && dy < 0) ||
-            (this.direction === DIRECTION_DOWN && dy > 0) ||
-            (this.direction === DIRECTION_LEFT && dx < 0) ||
-            (this.direction === DIRECTION_RIGHT && dx > 0)) {
-          const bullet = this.fire([], Date.now());
-          if (bullet) {
-            bullet.speed = this.bulletSpeed;
-            return true;
-          }
-        } else {
-          this.direction = this.getDirectionToTarget(player);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  getDirectionToTarget(target) {
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
-
-    if (Math.abs(dx) > Math.abs(dy)) {
-      return dx > 0 ? DIRECTION_RIGHT : DIRECTION_LEFT;
-    } else {
-      return dy > 0 ? DIRECTION_DOWN : DIRECTION_UP;
-    }
   }
 
   checkWallCollision(map) {
@@ -370,52 +387,6 @@ class EnemyTank extends Tank {
 
     return Math.random() < 0.02;
   }
-
-  findBestDirection(map, playerTanks, basePos) {
-    const directions = [DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT];
-    let bestDir = directions[Math.floor(Math.random() * 4)];
-    let bestScore = -Infinity;
-
-    for (const dir of directions) {
-      let score = 0;
-      let testX = this.x;
-      let testY = this.y;
-
-      for (let i = 0; i < 5; i++) {
-        switch (dir) {
-          case DIRECTION_UP: testY -= this.speed; break;
-          case DIRECTION_DOWN: testY += this.speed; break;
-          case DIRECTION_LEFT: testX -= this.speed; break;
-          case DIRECTION_RIGHT: testX += this.speed; break;
-        }
-      }
-
-      const tileX = Math.floor(testX / TILE_SIZE);
-      const tileY = Math.floor(testY / TILE_SIZE);
-
-      if (tileX >= 0 && tileX < MAP_WIDTH && tileY >= 0 && tileY < MAP_HEIGHT) {
-        const tile = map[tileY][tileX];
-        if (tile !== TILE_BRICK && tile !== TILE_STEEL && tile !== TILE_WATER) {
-          score += 10;
-        }
-      }
-
-      for (const player of playerTanks) {
-        if (player.isAlive) {
-          const dx = player.x - testX;
-          const dy = player.y - testY;
-          score -= Math.sqrt(dx * dx + dy * dy) * 0.01;
-        }
-      }
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestDir = dir;
-      }
-    }
-
-    return bestDir;
-  }
 }
 
 Page({
@@ -430,7 +401,24 @@ Page({
     showLevelStart: true,
     isSinglePlayer: true,
     difficulty: 'medium',
-    difficultyText: '中等'
+    difficultyText: '中等',
+    score: 0,
+    leftJoystick1Active: false,
+    leftJoystick1OffsetX: 0,
+    leftJoystick1OffsetY: 0,
+    rightJoystick1Active: false,
+    rightJoystick1OffsetX: 0,
+    rightJoystick1OffsetY: 0,
+    leftJoystick2Active: false,
+    leftJoystick2OffsetX: 0,
+    leftJoystick2OffsetY: 0,
+    rightJoystick2Active: false,
+    rightJoystick2OffsetX: 0,
+    rightJoystick2OffsetY: 0,
+    showSettings: false,
+    joystickSize: 240,
+    joystickOpacity: 0.8,
+    joystickOpacityPercent: 80
   },
 
   ctx: null,
@@ -446,15 +434,17 @@ Page({
   totalEnemiesSpawned: 0,
   enemiesKilled: 0,
   config: null,
-  joystickActive: false,
-  joystickTouchId: null,
-  joystickStartX: 0,
-  joystickStartY: 0,
-  joystickDeltaX: 0,
-  joystickDeltaY: 0,
-  fireTouches: {},
   audioManager: null,
   isMuted: false,
+  powerUps: [],
+  enemyFreezeTime: 0,
+  score: 0,
+
+  leftJoysticks: {},
+  rightJoysticks: {},
+  fireTouches: {},
+
+  JOYSTICK_MAX_RADIUS: 45,
 
   onLoad: function() {
     const appData = getApp();
@@ -473,15 +463,13 @@ Page({
     if (appData.globalData.isSinglePlayer && this.config.singlePlayerBonus) {
       this.setData({ lives1: 5 });
     }
+
+    this.loadProgress();
+    this.loadJoystickSettings();
   },
 
   onReady: function() {
     this.initGame();
-  },
-
-  onShow: function() {
-    if (this.ctx && this.isRunning) {
-    }
   },
 
   onHide: function() {
@@ -494,9 +482,47 @@ Page({
     }
   },
 
+  onUnload: function() {
+    this.isRunning = false;
+    if (this.gameLoop) {
+      clearTimeout(this.gameLoop);
+    }
+    for (const key in this.fireTouches) {
+      if (this.fireTouches[key]) {
+        clearInterval(this.fireTouches[key]);
+        delete this.fireTouches[key];
+      }
+    }
+    if (this.audioManager) {
+      this.audioManager.destroy();
+    }
+  },
+
   getDifficultyText: function(diff) {
     const map = { easy: '简单', medium: '中等', hard: '发狂' };
     return map[diff] || '中等';
+  },
+
+  loadProgress: function() {
+    try {
+      const progress = wx.getStorageSync('gameProgress');
+      if (progress) {
+        const data = JSON.parse(progress);
+        this.score = data.score || 0;
+        this.setData({ score: this.score });
+      }
+    } catch (e) {}
+  },
+
+  saveProgress: function() {
+    try {
+      const progress = {
+        score: this.score,
+        maxLevel: this.currentLevel,
+        timestamp: Date.now()
+      };
+      wx.setStorageSync('gameProgress', JSON.stringify(progress));
+    } catch (e) {}
   },
 
   initGame: function() {
@@ -505,6 +531,10 @@ Page({
       const canvas = res.node;
       this.canvas = canvas;
       this.ctx = canvas.getContext('2d');
+
+      const sysInfo = wx.getSystemInfoSync();
+      const screenW = sysInfo.windowWidth;
+      const screenH = sysInfo.windowHeight;
 
       canvas.width = CANVAS_WIDTH;
       canvas.height = CANVAS_HEIGHT;
@@ -524,24 +554,29 @@ Page({
   },
 
   loadLevel: function(levelNum) {
-    const levelData = LEVELS[levelNum - 1];
+    const levelIdx = Math.min(levelNum - 1, LEVELS.length - 1);
+    const levelData = LEVELS[levelIdx];
     this.mapData = JSON.parse(JSON.stringify(levelData.map));
     this.map = this.mapData;
 
     this.bullets = [];
     this.enemies = [];
     this.playerTanks = [];
+    this.powerUps = [];
     this.totalEnemiesSpawned = 0;
     this.enemiesKilled = 0;
     this.spawnTimer = 0;
+    this.enemyFreezeTime = 0;
 
     const spawnY = (MAP_HEIGHT - 3) * TILE_SIZE;
 
     const p1 = new Tank(2 * TILE_SIZE, spawnY, DIRECTION_UP, true, 1);
+    p1.turretAngle = -Math.PI / 2;
     this.playerTanks.push(p1);
 
     if (!this.data.isSinglePlayer) {
       const p2 = new Tank(4 * TILE_SIZE, spawnY, DIRECTION_UP, true, 2);
+      p2.turretAngle = -Math.PI / 2;
       this.playerTanks.push(p2);
     }
 
@@ -577,6 +612,7 @@ Page({
       this.updateEnemies(currentTime);
       this.updateBullets();
       this.checkCollisions();
+      this.updatePowerUps(currentTime);
       this.updateSpawning(currentTime);
       this.checkWinCondition();
       this.render();
@@ -593,13 +629,19 @@ Page({
 
       tank.isMoving = false;
 
-      if (tank.playerId === 1 && this.joystickActive) {
-        const angle = Math.atan2(this.joystickDeltaY, this.joystickDeltaX);
-        const magnitude = Math.min(Math.sqrt(this.joystickDeltaX * this.joystickDeltaX + this.joystickDeltaY * this.joystickDeltaY), 50);
+      const playerId = tank.playerId;
+      const leftJoystick = this.leftJoysticks[playerId];
+      const rightJoystick = this.rightJoysticks[playerId];
 
-        if (magnitude > 10) {
+      if (leftJoystick && leftJoystick.active) {
+        const angle = Math.atan2(leftJoystick.deltaY, leftJoystick.deltaX);
+        const magnitude = Math.min(
+          Math.sqrt(leftJoystick.deltaX * leftJoystick.deltaX + leftJoystick.deltaY * leftJoystick.deltaY),
+          this.JOYSTICK_MAX_RADIUS
+        );
+
+        if (magnitude > 8) {
           tank.isMoving = true;
-
           const deg = angle * 180 / Math.PI;
           if (deg > -45 && deg <= 45) {
             tank.direction = DIRECTION_RIGHT;
@@ -613,15 +655,27 @@ Page({
         }
       }
 
+      if (rightJoystick && rightJoystick.active) {
+        const angle = Math.atan2(rightJoystick.deltaY, rightJoystick.deltaX);
+        tank.turretAngle = angle;
+      }
+
       tank.update(currentTime, this.map, this.playerTanks);
     }
   },
 
   updateEnemies: function(currentTime) {
+    const frozen = this.enemyFreezeTime > currentTime;
+
     for (const enemy of this.enemies) {
       if (enemy.isAlive) {
+        if (frozen) {
+          enemy.isMoving = false;
+          continue;
+        }
+
         const bullet = enemy.updateAI(currentTime, this.map, this.playerTanks, { x: 12 * TILE_SIZE, y: 24 * TILE_SIZE }, this.enemies);
-        
+
         if (bullet) {
           this.bullets.push(new Bullet(
             bullet.x, bullet.y, bullet.direction,
@@ -655,7 +709,14 @@ Page({
           bullet.isAlive = false;
           enemy.isAlive = false;
           this.enemiesKilled++;
+          this.score += 100;
           this.updateEnemyCount();
+          this.setData({ score: this.score });
+
+          if (enemy.isFlashing) {
+            this.spawnPowerUp(enemy.x, enemy.y);
+          }
+
           if (this.audioManager) {
             this.audioManager.playExplosion();
           }
@@ -666,7 +727,7 @@ Page({
       if (!bullet.isAlive) continue;
 
       for (const player of this.playerTanks) {
-        if (!player.isAlive || player.isInvincible) continue;
+        if (!player.isAlive || player.isInvincible || player.shieldActive) continue;
         const pHit = player.getHitbox();
 
         if (this.intersects(bHit, pHit)) {
@@ -682,6 +743,20 @@ Page({
 
       if (!bullet.isAlive) continue;
 
+      for (const otherBullet of this.bullets) {
+        if (otherBullet === bullet || !otherBullet.isAlive) continue;
+        if (bullet.isPlayerBullet !== otherBullet.isPlayerBullet) {
+          const oHit = otherBullet.getHitbox();
+          if (this.intersects(bHit, oHit)) {
+            bullet.isAlive = false;
+            otherBullet.isAlive = false;
+            break;
+          }
+        }
+      }
+
+      if (!bullet.isAlive) continue;
+
       const tileX = Math.floor(bullet.x / TILE_SIZE);
       const tileY = Math.floor(bullet.y / TILE_SIZE);
 
@@ -691,6 +766,8 @@ Page({
         if (tile === TILE_BRICK) {
           bullet.isAlive = false;
           if (bullet.isSuper) {
+            this.destroyBrickArea(tileX, tileY);
+          } else {
             this.map[tileY][tileX] = TILE_EMPTY;
           }
         } else if (tile === TILE_STEEL) {
@@ -704,6 +781,127 @@ Page({
           this.setData({ gameOver: true, gameWin: false });
         }
       }
+    }
+
+    for (const player of this.playerTanks) {
+      if (!player.isAlive) continue;
+      const pHit = player.getHitbox();
+
+      for (const powerUp of this.powerUps) {
+        if (!powerUp.isAlive) continue;
+        const puHit = powerUp.getHitbox();
+
+        if (this.intersects(pHit, puHit)) {
+          powerUp.isAlive = false;
+          this.applyPowerUp(powerUp.type, player);
+        }
+      }
+    }
+
+    this.powerUps = this.powerUps.filter(p => p.isAlive);
+  },
+
+  destroyBrickArea: function(tileX, tileY) {
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const nx = tileX + dx;
+        const ny = tileY + dy;
+        if (nx >= 0 && nx < MAP_WIDTH && ny >= 0 && ny < MAP_HEIGHT) {
+          if (this.map[ny][nx] === TILE_BRICK) {
+            this.map[ny][nx] = TILE_EMPTY;
+          }
+        }
+      }
+    }
+  },
+
+  spawnPowerUp: function(x, y) {
+    const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+    const puX = Math.max(0, Math.min(x, CANVAS_WIDTH - TILE_SIZE));
+    const puY = Math.max(0, Math.min(y, CANVAS_HEIGHT - TILE_SIZE));
+    this.powerUps.push(new PowerUp(puX, puY, type));
+  },
+
+  applyPowerUp: function(type, player) {
+    const currentTime = Date.now();
+
+    switch (type) {
+      case POWERUP_CLOCK:
+        this.enemyFreezeTime = currentTime + 8000;
+        break;
+      case POWERUP_GRENADE:
+        for (const enemy of this.enemies) {
+          if (enemy.isAlive) {
+            enemy.isAlive = false;
+            this.enemiesKilled++;
+            this.score += 100;
+          }
+        }
+        this.updateEnemyCount();
+        this.setData({ score: this.score });
+        if (this.audioManager) {
+          this.audioManager.playExplosion();
+        }
+        break;
+      case POWERUP_HELMET:
+        player.shieldActive = true;
+        player.shieldTime = currentTime + 10000;
+        break;
+      case POWERUP_SHOVEL:
+        this.fortifyBase(currentTime);
+        break;
+      case POWERUP_TANK:
+        if (player.playerId === 1) {
+          const lives = this.data.lives1 + 1;
+          this.setData({ lives1: lives });
+        } else {
+          const lives = this.data.lives2 + 1;
+          this.setData({ lives2: lives });
+        }
+        break;
+      case POWERUP_STAR:
+        player.starLevel = Math.min(player.starLevel + 1, 3);
+        if (player.starLevel >= 1) {
+          player.fireRate = 300;
+        }
+        break;
+    }
+  },
+
+  fortifyBase: function(currentTime) {
+    const baseY = MAP_HEIGHT - 2;
+    const baseX = 12;
+
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -2; dx <= 3; dx++) {
+        const tx = baseX + dx;
+        const ty = baseY + dy;
+        if (tx >= 0 && tx < MAP_WIDTH && ty >= 0 && ty < MAP_HEIGHT) {
+          if (this.map[ty][tx] === TILE_BRICK || this.map[ty][tx] === TILE_EMPTY) {
+            this.map[ty][tx] = TILE_STEEL;
+          }
+        }
+      }
+    }
+
+    setTimeout(() => {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -2; dx <= 3; dx++) {
+          const tx = baseX + dx;
+          const ty = baseY + dy;
+          if (tx >= 0 && tx < MAP_WIDTH && ty >= 0 && ty < MAP_HEIGHT) {
+            if (this.map[ty][tx] === TILE_STEEL) {
+              this.map[ty][tx] = TILE_BRICK;
+            }
+          }
+        }
+      }
+    }, 10000);
+  },
+
+  updatePowerUps: function(currentTime) {
+    for (const pu of this.powerUps) {
+      pu.update(currentTime);
     }
   },
 
@@ -720,6 +918,7 @@ Page({
           player.x = 2 * TILE_SIZE;
           player.y = (MAP_HEIGHT - 3) * TILE_SIZE;
           player.direction = DIRECTION_UP;
+          player.turretAngle = -Math.PI / 2;
           player.isAlive = true;
           player.isInvincible = true;
           player.invincibleTime = Date.now() + 3000;
@@ -735,6 +934,7 @@ Page({
           player.x = 4 * TILE_SIZE;
           player.y = (MAP_HEIGHT - 3) * TILE_SIZE;
           player.direction = DIRECTION_UP;
+          player.turretAngle = -Math.PI / 2;
           player.isAlive = true;
           player.isInvincible = true;
           player.invincibleTime = Date.now() + 3000;
@@ -753,6 +953,7 @@ Page({
       if (this.audioManager) {
         this.audioManager.playDefeat();
       }
+      this.saveProgress();
     }
   },
 
@@ -775,7 +976,327 @@ Page({
       if (this.audioManager) {
         this.audioManager.playVictory();
       }
+      this.saveProgress();
     }
+  },
+
+  onLeftJoystickStart: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    const touch = e.touches[0];
+    this.leftJoysticks[playerId] = {
+      active: true,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      deltaX: 0,
+      deltaY: 0,
+      touchId: touch.identifier
+    };
+
+    const dataKey = `leftJoystick${playerId}Active`;
+    this.setData({ [dataKey]: true });
+  },
+
+  onLeftJoystickMove: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    const joystick = this.leftJoysticks[playerId];
+    if (!joystick || !joystick.active) return;
+
+    for (const touch of e.touches) {
+      if (touch.identifier === joystick.touchId) {
+        let dx = touch.clientX - joystick.startX;
+        let dy = touch.clientY - joystick.startY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const maxR = this.JOYSTICK_MAX_RADIUS;
+
+        if (dist > maxR) {
+          dx = (dx / dist) * maxR;
+          dy = (dy / dist) * maxR;
+        }
+
+        joystick.deltaX = dx;
+        joystick.deltaY = dy;
+
+        const dataX = `leftJoystick${playerId}OffsetX`;
+        const dataY = `leftJoystick${playerId}OffsetY`;
+        this.setData({ [dataX]: dx, [dataY]: dy });
+        break;
+      }
+    }
+  },
+
+  onLeftJoystickEnd: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    const joystick = this.leftJoysticks[playerId];
+    if (!joystick) return;
+
+    let found = false;
+    if (e.changedTouches) {
+      for (const touch of e.changedTouches) {
+        if (touch.identifier === joystick.touchId) {
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      for (const touch of (e.touches || [])) {
+        if (touch.identifier === joystick.touchId) {
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      joystick.active = false;
+      joystick.deltaX = 0;
+      joystick.deltaY = 0;
+
+      const dataActive = `leftJoystick${playerId}Active`;
+      const dataX = `leftJoystick${playerId}OffsetX`;
+      const dataY = `leftJoystick${playerId}OffsetY`;
+      this.setData({ [dataActive]: false, [dataX]: 0, [dataY]: 0 });
+    }
+  },
+
+  onRightJoystickStart: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    const touch = e.touches[0];
+    this.rightJoysticks[playerId] = {
+      active: true,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      deltaX: 0,
+      deltaY: 0,
+      touchId: touch.identifier
+    };
+
+    const dataKey = `rightJoystick${playerId}Active`;
+    this.setData({ [dataKey]: true });
+  },
+
+  onRightJoystickMove: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    const joystick = this.rightJoysticks[playerId];
+    if (!joystick || !joystick.active) return;
+
+    for (const touch of e.touches) {
+      if (touch.identifier === joystick.touchId) {
+        let dx = touch.clientX - joystick.startX;
+        let dy = touch.clientY - joystick.startY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const maxR = this.JOYSTICK_MAX_RADIUS;
+
+        if (dist > maxR) {
+          dx = (dx / dist) * maxR;
+          dy = (dy / dist) * maxR;
+        }
+
+        joystick.deltaX = dx;
+        joystick.deltaY = dy;
+
+        const dataX = `rightJoystick${playerId}OffsetX`;
+        const dataY = `rightJoystick${playerId}OffsetY`;
+        this.setData({ [dataX]: dx, [dataY]: dy });
+        break;
+      }
+    }
+  },
+
+  onRightJoystickEnd: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    const joystick = this.rightJoysticks[playerId];
+    if (!joystick) return;
+
+    let found = false;
+    if (e.changedTouches) {
+      for (const touch of e.changedTouches) {
+        if (touch.identifier === joystick.touchId) {
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      for (const touch of (e.touches || [])) {
+        if (touch.identifier === joystick.touchId) {
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (!found) {
+      joystick.active = false;
+      joystick.deltaX = 0;
+      joystick.deltaY = 0;
+
+      const dataActive = `rightJoystick${playerId}Active`;
+      const dataX = `rightJoystick${playerId}OffsetX`;
+      const dataY = `rightJoystick${playerId}OffsetY`;
+      this.setData({ [dataActive]: false, [dataX]: 0, [dataY]: 0 });
+    }
+  },
+
+  onFireStart: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    const player = this.playerTanks.find(t => t.playerId === playerId);
+
+    if (player && player.isAlive) {
+      const bullet = player.fire([], Date.now());
+      if (bullet) {
+        this.bullets.push(new Bullet(
+          bullet.x, bullet.y, bullet.direction,
+          bullet.speed, true, playerId, player.hasSuperBullet || player.starLevel >= 3
+        ));
+        if (this.audioManager) {
+          this.audioManager.playShoot();
+        }
+      }
+    }
+
+    this.fireTouches[playerId] = setInterval(() => {
+      if (player && player.isAlive) {
+        const bullet = player.fire([], Date.now());
+        if (bullet) {
+          this.bullets.push(new Bullet(
+            bullet.x, bullet.y, bullet.direction,
+            bullet.speed, true, playerId, player.hasSuperBullet || player.starLevel >= 3
+          ));
+          if (this.audioManager) {
+            this.audioManager.playShoot();
+          }
+        }
+      }
+    }, player ? player.fireRate : 500);
+  },
+
+  onFireEnd: function(e) {
+    const playerId = parseInt(e.currentTarget.dataset.player);
+    if (this.fireTouches[playerId]) {
+      clearInterval(this.fireTouches[playerId]);
+      delete this.fireTouches[playerId];
+    }
+  },
+
+  togglePause: function() {
+    const newPaused = !this.data.isPaused;
+    this.setData({ isPaused: newPaused });
+    if (this.audioManager) {
+      if (newPaused) {
+        this.audioManager.pauseBackgroundMusic();
+      } else {
+        this.audioManager.resumeBackgroundMusic();
+      }
+    }
+  },
+
+  toggleMute: function() {
+    if (this.audioManager) {
+      const muted = this.audioManager.toggleMute();
+      this.setData({ isMuted: muted });
+    }
+  },
+
+  toggleSettings: function() {
+    this.setData({ showSettings: !this.data.showSettings });
+  },
+
+  onJoystickSizeChange: function(e) {
+    const size = e.detail.value;
+    this.setData({ joystickSize: size });
+    try {
+      wx.setStorageSync('joystickSize', size);
+    } catch (err) {}
+  },
+
+  onJoystickOpacityChange: function(e) {
+    const percent = e.detail.value;
+    const opacity = percent / 100;
+    this.setData({
+      joystickOpacityPercent: percent,
+      joystickOpacity: opacity
+    });
+    try {
+      wx.setStorageSync('joystickOpacity', percent);
+    } catch (err) {}
+  },
+
+  loadJoystickSettings: function() {
+    try {
+      const size = wx.getStorageSync('joystickSize');
+      const opacityPercent = wx.getStorageSync('joystickOpacity');
+      if (size) {
+        this.setData({ joystickSize: size });
+      }
+      if (opacityPercent) {
+        this.setData({
+          joystickOpacityPercent: opacityPercent,
+          joystickOpacity: opacityPercent / 100
+        });
+      }
+    } catch (e) {}
+  },
+
+  restartLevel: function() {
+    for (const key in this.fireTouches) {
+      if (this.fireTouches[key]) {
+        clearInterval(this.fireTouches[key]);
+        delete this.fireTouches[key];
+      }
+    }
+
+    this.setData({
+      gameOver: false,
+      gameWin: false,
+      isPaused: false,
+      lives1: this.data.isSinglePlayer ? (this.config.singlePlayerBonus ? 5 : 3) : 3,
+      lives2: this.data.isSinglePlayer ? 0 : 3,
+      enemyCount: 20
+    });
+
+    this.loadLevel(this.currentLevel);
+    this.isRunning = true;
+  },
+
+  nextLevel: function() {
+    if (this.currentLevel < LEVELS.length) {
+      this.currentLevel++;
+      this.setData({
+        level: this.currentLevel,
+        gameOver: false,
+        gameWin: false,
+        isPaused: false,
+        showLevelStart: true,
+        lives1: this.data.isSinglePlayer ? (this.config.singlePlayerBonus ? 5 : 3) : 3,
+        lives2: this.data.isSinglePlayer ? 0 : 3,
+        enemyCount: 20
+      });
+
+      this.loadLevel(this.currentLevel);
+
+      setTimeout(() => {
+        this.setData({ showLevelStart: false });
+        this.isRunning = true;
+      }, 2000);
+    }
+  },
+
+  exitToMenu: function() {
+    this.isRunning = false;
+    if (this.gameLoop) {
+      clearTimeout(this.gameLoop);
+    }
+    for (const key in this.fireTouches) {
+      if (this.fireTouches[key]) {
+        clearInterval(this.fireTouches[key]);
+        delete this.fireTouches[key];
+      }
+    }
+    this.saveProgress();
+    wx.navigateBack();
   },
 
   render: function() {
@@ -783,9 +1304,11 @@ Page({
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     this.renderMap();
+    this.renderPowerUps();
     this.renderEnemies();
     this.renderPlayerTanks();
     this.renderBullets();
+    this.renderTreeLayer();
   },
 
   renderMap: function() {
@@ -799,13 +1322,14 @@ Page({
 
         switch (tile) {
           case TILE_EMPTY:
-            ctx.fillStyle = '#2a2a2a';
+            ctx.fillStyle = '#1a1a1a';
             ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
             break;
           case TILE_BRICK:
             ctx.fillStyle = '#b55a5a';
             ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
             ctx.strokeStyle = '#8a3a3a';
+            ctx.lineWidth = 1;
             ctx.strokeRect(px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
             ctx.beginPath();
             ctx.moveTo(px, py);
@@ -832,12 +1356,6 @@ Page({
             ctx.fillRect(px + waveOffset % TILE_SIZE, py + 15, TILE_SIZE / 3, 3);
             break;
           case TILE_TREE:
-            ctx.fillStyle = '#2a2a2a';
-            ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = '#3a6a3a';
-            ctx.beginPath();
-            ctx.arc(px + TILE_SIZE / 2, py + TILE_SIZE / 2, TILE_SIZE / 2 - 2, 0, Math.PI * 2);
-            ctx.fill();
             break;
           case TILE_ICE:
             ctx.fillStyle = '#aaddff';
@@ -847,7 +1365,7 @@ Page({
             ctx.fillRect(px + 14, py + 10, 8, 4);
             break;
           case TILE_BASE:
-            ctx.fillStyle = '#2a2a2a';
+            ctx.fillStyle = '#1a1a1a';
             ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
             ctx.fillStyle = '#ffcc00';
             ctx.fillRect(px + 5, py + 5, TILE_SIZE - 10, TILE_SIZE - 10);
@@ -855,6 +1373,22 @@ Page({
             ctx.fillRect(px + 10, py + 2, TILE_SIZE - 20, TILE_SIZE - 4);
             ctx.fillRect(px + 2, py + 10, TILE_SIZE - 4, TILE_SIZE - 20);
             break;
+        }
+      }
+    }
+  },
+
+  renderTreeLayer: function() {
+    const ctx = this.ctx;
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        if (this.map[y][x] === TILE_TREE) {
+          const px = x * TILE_SIZE;
+          const py = y * TILE_SIZE;
+          ctx.fillStyle = '#3a6a3a';
+          ctx.beginPath();
+          ctx.arc(px + TILE_SIZE / 2, py + TILE_SIZE / 2, TILE_SIZE / 2 - 2, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
     }
@@ -869,21 +1403,39 @@ Page({
     ctx.save();
     ctx.translate(cx, cy);
 
-    const rotation = (tank.direction * Math.PI) / 2;
-    ctx.rotate(rotation);
+    const bodyRotation = (tank.direction * Math.PI) / 2;
+    ctx.rotate(bodyRotation);
 
-    const color = tank.isPlayer ? 
-      (tank.playerId === 1 ? '#4a7c4a' : '#4a4a7c') : 
-      (tank.type === 'power' ? '#7c4a4a' : tank.type === 'fast' ? '#7c7c4a' : '#7c4a7c');
+    let bodyColor, trackColor;
+    if (tank.isPlayer) {
+      if (tank.playerId === 1) {
+        bodyColor = tank.starLevel >= 3 ? '#ffcc00' : tank.starLevel >= 1 ? '#6aaa6a' : '#4a7c4a';
+        trackColor = tank.starLevel >= 3 ? '#cc9900' : '#2a5c2a';
+      } else {
+        bodyColor = tank.starLevel >= 3 ? '#ffcc00' : tank.starLevel >= 1 ? '#6a6aaa' : '#4a4a7c';
+        trackColor = tank.starLevel >= 3 ? '#cc9900' : '#2a2a5c';
+      }
+    } else {
+      switch (tank.type) {
+        case 'power': bodyColor = '#7c4a4a'; trackColor = '#5a3a3a'; break;
+        case 'fast': bodyColor = '#7c7c4a'; trackColor = '#5a5a3a'; break;
+        case 'armor': bodyColor = '#6a6a6a'; trackColor = '#4a4a4a'; break;
+        default: bodyColor = '#7c4a7c'; trackColor = '#5a3a5a';
+      }
+    }
 
     if (tank.isInvincible && Date.now() % 200 < 100) {
       ctx.globalAlpha = 0.5;
     }
 
-    ctx.fillStyle = color;
+    if (tank.isFlashing && Date.now() % 300 < 150) {
+      ctx.globalAlpha = 0.6;
+    }
+
+    ctx.fillStyle = bodyColor;
     ctx.fillRect(-tank.width / 2, -tank.height / 2, tank.width, tank.height);
 
-    ctx.fillStyle = tank.isPlayer ? '#2a5c2a' : '#5a3a3a';
+    ctx.fillStyle = trackColor;
     ctx.fillRect(-tank.width / 2 + 2, -tank.height / 2 + 2, tank.width - 4, tank.height - 4);
 
     ctx.fillStyle = '#333';
@@ -897,10 +1449,67 @@ Page({
 
     ctx.restore();
 
+    if (tank.isPlayer && tank.turretAngle !== undefined) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(tank.turretAngle + Math.PI / 2);
+
+      ctx.fillStyle = '#444';
+      ctx.fillRect(-2, -tank.height / 2 - 8, 4, tank.height / 2 + 4);
+
+      ctx.restore();
+    }
+
+    if (tank.shieldActive) {
+      ctx.strokeStyle = '#00ffff';
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 100) * 0.3;
+      ctx.beginPath();
+      ctx.arc(cx, cy, tank.width / 2 + 4, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
     if (tank.hasSuperBullet) {
       ctx.strokeStyle = '#ffff00';
       ctx.lineWidth = 2;
       ctx.strokeRect(tank.x - 2, tank.y - 2, tank.width + 4, tank.height + 4);
+    }
+  },
+
+  renderPowerUps: function() {
+    const ctx = this.ctx;
+    const currentTime = Date.now();
+
+    for (const pu of this.powerUps) {
+      if (!pu.isAlive) continue;
+
+      if (Math.floor(currentTime / 200) % 2 === 0) continue;
+
+      const px = pu.x;
+      const py = pu.y;
+
+      ctx.fillStyle = '#ffcc00';
+      ctx.fillRect(px, py, pu.size, pu.size);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(px + 1, py + 1, pu.size - 2, pu.size - 2);
+
+      ctx.fillStyle = '#000';
+      ctx.font = '14px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      let symbol = '';
+      switch (pu.type) {
+        case POWERUP_CLOCK: symbol = 'C'; break;
+        case POWERUP_GRENADE: symbol = 'G'; break;
+        case POWERUP_HELMET: symbol = 'H'; break;
+        case POWERUP_SHOVEL: symbol = 'S'; break;
+        case POWERUP_TANK: symbol = 'T'; break;
+        case POWERUP_STAR: symbol = '*'; break;
+      }
+      ctx.fillText(symbol, px + pu.size / 2, py + pu.size / 2);
     }
   },
 
@@ -933,163 +1542,5 @@ Page({
 
       ctx.restore();
     }
-  },
-
-  onTouchStart: function(e) {
-    const touches = e.touches;
-
-    for (const touch of touches) {
-      if (touch.clientX < 150 && touch.clientY > 300) {
-        this.joystickActive = true;
-        this.joystickTouchId = touch.id;
-        this.joystickStartX = touch.clientX;
-        this.joystickStartY = touch.clientY;
-        this.joystickDeltaX = 0;
-        this.joystickDeltaY = 0;
-      }
-    }
-  },
-
-  onTouchMove: function(e) {
-    const touches = e.touches;
-
-    for (const touch of touches) {
-      if (touch.id === this.joystickTouchId) {
-        this.joystickDeltaX = touch.clientX - this.joystickStartX;
-        this.joystickDeltaY = touch.clientY - this.joystickStartY;
-
-        const maxDist = 50;
-        const dist = Math.sqrt(this.joystickDeltaX * this.joystickDeltaX + this.joystickDeltaY * this.joystickDeltaY);
-
-        if (dist > maxDist) {
-          this.joystickDeltaX = (this.joystickDeltaX / dist) * maxDist;
-          this.joystickDeltaY = (this.joystickDeltaY / dist) * maxDist;
-        }
-      }
-    }
-  },
-
-  onTouchEnd: function(e) {
-    const touches = e.touches;
-
-    let found = false;
-    for (const touch of touches) {
-      if (touch.id === this.joystickTouchId) {
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      this.joystickActive = false;
-      this.joystickTouchId = null;
-      this.joystickDeltaX = 0;
-      this.joystickDeltaY = 0;
-    }
-  },
-
-  onFireStart: function(e) {
-    const playerId = parseInt(e.currentTarget.dataset.player);
-    const player = this.playerTanks.find(t => t.playerId === playerId);
-
-    if (player && player.isAlive) {
-      const bullet = player.fire([], Date.now());
-      if (bullet) {
-        this.bullets.push(new Bullet(
-          bullet.x, bullet.y, bullet.direction,
-          bullet.speed, true, playerId, player.hasSuperBullet
-        ));
-        if (this.audioManager) {
-          this.audioManager.playShoot();
-        }
-      }
-    }
-
-    this.fireTouches[playerId] = setInterval(() => {
-      if (player && player.isAlive) {
-        const bullet = player.fire([], Date.now());
-        if (bullet) {
-          this.bullets.push(new Bullet(
-            bullet.x, bullet.y, bullet.direction,
-            bullet.speed, true, playerId, player.hasSuperBullet
-          ));
-          if (this.audioManager) {
-            this.audioManager.playShoot();
-          }
-        }
-      }
-    }, 300);
-  },
-
-  onFireEnd: function(e) {
-    const playerId = parseInt(e.currentTarget.dataset.player);
-    if (this.fireTouches[playerId]) {
-      clearInterval(this.fireTouches[playerId]);
-      delete this.fireTouches[playerId];
-    }
-  },
-
-  togglePause: function() {
-    const newPaused = !this.data.isPaused;
-    this.setData({ isPaused: newPaused });
-    if (this.audioManager) {
-      if (newPaused) {
-        this.audioManager.pauseBackgroundMusic();
-      } else {
-        this.audioManager.resumeBackgroundMusic();
-      }
-    }
-  },
-
-  toggleMute: function() {
-    if (this.audioManager) {
-      const muted = this.audioManager.toggleMute();
-      this.setData({ isMuted: muted });
-    }
-  },
-
-  restartLevel: function() {
-    this.setData({
-      gameOver: false,
-      gameWin: false,
-      isPaused: false,
-      lives1: this.data.isSinglePlayer ? (this.config.singlePlayerBonus ? 5 : 3) : 3,
-      lives2: this.data.isSinglePlayer ? 0 : 3,
-      enemyCount: 20
-    });
-
-    this.loadLevel(this.currentLevel);
-    this.isRunning = true;
-  },
-
-  nextLevel: function() {
-    if (this.currentLevel < 10) {
-      this.currentLevel++;
-      this.setData({
-        level: this.currentLevel,
-        gameOver: false,
-        gameWin: false,
-        isPaused: false,
-        showLevelStart: true,
-        lives1: this.data.isSinglePlayer ? (this.config.singlePlayerBonus ? 5 : 3) : 3,
-        lives2: this.data.isSinglePlayer ? 0 : 3,
-        enemyCount: 20
-      });
-
-      this.loadLevel(this.currentLevel);
-
-      setTimeout(() => {
-        this.setData({ showLevelStart: false });
-        this.isRunning = true;
-      }, 2000);
-    }
-  },
-
-  exitToMenu: function() {
-    this.isRunning = false;
-    if (this.gameLoop) {
-      clearTimeout(this.gameLoop);
-    }
-    wx.navigateBack();
   }
 });

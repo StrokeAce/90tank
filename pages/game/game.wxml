@@ -1,5 +1,5 @@
 <view class="game-container">
-  <canvas type="2d" id="gameCanvas" canvas-id="gameCanvas" class="game-canvas" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd"></canvas>
+  <canvas type="2d" id="gameCanvas" canvas-id="gameCanvas" class="game-canvas"></canvas>
 
   <view class="game-hud">
     <view class="hud-left">
@@ -8,73 +8,138 @@
         <text class="hud-value">{{level}}</text>
       </view>
       <view class="hud-item">
-        <text class="hud-label">玩家1</text>
+        <text class="hud-label">P1</text>
         <text class="hud-value">{{lives1}}</text>
       </view>
       <view class="hud-item" wx:if="{{!isSinglePlayer}}">
-        <text class="hud-label">玩家2</text>
+        <text class="hud-label">P2</text>
         <text class="hud-value">{{lives2}}</text>
       </view>
       <view class="hud-item">
-        <text class="hud-label">敌人</text>
+        <text class="hud-label">敌</text>
         <text class="hud-value">{{enemyCount}}</text>
       </view>
     </view>
+    <view class="hud-center">
+      <text class="hud-score">SCORE: {{score}}</text>
+    </view>
     <view class="hud-right">
-      <view class="mute-btn" bindtap="toggleMute">
+      <view class="hud-btn" bindtap="toggleMute">
         <text>{{isMuted ? '🔇' : '🔊'}}</text>
       </view>
-      <view class="pause-btn" bindtap="togglePause">
-        <text>{{isPaused ? '继续' : '暂停'}}</text>
+      <view class="hud-btn" bindtap="togglePause">
+        <text>{{isPaused ? '▶' : '⏸'}}</text>
       </view>
     </view>
   </view>
 
-  <view class="controls-overlay">
-    <view class="joystick-area" id="joystickArea">
-      <view class="joystick-base" id="joystickBase">
-        <view class="joystick-stick {{joystickActive ? 'active' : ''}}" id="joystickStick"></view>
+  <view class="controls-p1" wx:if="{{isSinglePlayer || !isSinglePlayer}}">
+    <view class="joystick-left" id="joystickLeft1"
+          bindtouchstart="onLeftJoystickStart" bindtouchmove="onLeftJoystickMove" bindtouchend="onLeftJoystickEnd"
+          data-player="1"
+          style="width: {{joystickSize}}rpx; height: {{joystickSize}}rpx; opacity: {{joystickOpacity}};">
+      <view class="joystick-base">
+        <view class="joystick-stick {{leftJoystick1Active ? 'active' : ''}}"
+              style="transform: translate({{leftJoystick1OffsetX}}px, {{leftJoystick1OffsetY}}px)"></view>
       </view>
     </view>
 
-    <view class="fire-buttons">
-      <view class="fire-btn fire-btn-p1" bindtouchstart="onFireStart" bindtouchend="onFireEnd" data-player="1">
-        <text>1P</text>
+    <view class="joystick-right" id="joystickRight1"
+          bindtouchstart="onRightJoystickStart" bindtouchmove="onRightJoystickMove" bindtouchend="onRightJoystickEnd"
+          data-player="1"
+          style="width: {{joystickSize}}rpx; height: {{joystickSize}}rpx; opacity: {{joystickOpacity}};">
+      <view class="joystick-base">
+        <view class="joystick-stick {{rightJoystick1Active ? 'active' : ''}}"
+              style="transform: translate({{rightJoystick1OffsetX}}px, {{rightJoystick1OffsetY}}px)"></view>
       </view>
-      <view class="fire-btn fire-btn-p2" wx:if="{{!isSinglePlayer}}" bindtouchstart="onFireStart" bindtouchend="onFireEnd" data-player="2">
-        <text>2P</text>
+    </view>
+
+    <view class="fire-btn" bindtouchstart="onFireStart" bindtouchend="onFireEnd" data-player="1">
+      <text class="fire-btn-text">FIRE</text>
+    </view>
+  </view>
+
+  <view class="controls-p2" wx:if="{{!isSinglePlayer}}">
+    <view class="joystick-left joystick-left-p2" id="joystickLeft2"
+          bindtouchstart="onLeftJoystickStart" bindtouchmove="onLeftJoystickMove" bindtouchend="onLeftJoystickEnd"
+          data-player="2"
+          style="width: {{joystickSize}}rpx; height: {{joystickSize}}rpx; opacity: {{joystickOpacity}};">
+      <view class="joystick-base">
+        <view class="joystick-stick {{leftJoystick2Active ? 'active' : ''}}"
+              style="transform: translate({{leftJoystick2OffsetX}}px, {{leftJoystick2OffsetY}}px)"></view>
       </view>
+    </view>
+
+    <view class="joystick-right joystick-right-p2" id="joystickRight2"
+          bindtouchstart="onRightJoystickStart" bindtouchmove="onRightJoystickMove" bindtouchend="onRightJoystickEnd"
+          data-player="2"
+          style="width: {{joystickSize}}rpx; height: {{joystickSize}}rpx; opacity: {{joystickOpacity}};">
+      <view class="joystick-base">
+        <view class="joystick-stick {{rightJoystick2Active ? 'active' : ''}}"
+              style="transform: translate({{rightJoystick2OffsetX}}px, {{rightJoystick2OffsetY}}px)"></view>
+      </view>
+    </view>
+
+    <view class="fire-btn fire-btn-p2" bindtouchstart="onFireStart" bindtouchend="onFireEnd" data-player="2">
+      <text class="fire-btn-text">FIRE</text>
     </view>
   </view>
 
   <view class="pause-modal {{isPaused ? 'show' : ''}}">
-    <view class="pause-content">
-      <text class="pause-title">游戏暂停</text>
-      <view class="pause-btns">
-        <view class="pause-btn-item" bindtap="togglePause">
+    <view class="modal-content">
+      <text class="modal-title">游戏暂停</text>
+      <view class="modal-btns">
+        <view class="modal-btn" bindtap="togglePause">
           <text>继续游戏</text>
         </view>
-        <view class="pause-btn-item" bindtap="restartLevel">
+        <view class="modal-btn" bindtap="toggleSettings">
+          <text>摇杆设置</text>
+        </view>
+        <view class="modal-btn" bindtap="restartLevel">
           <text>重新开始</text>
         </view>
-        <view class="pause-btn-item" bindtap="exitToMenu">
+        <view class="modal-btn" bindtap="exitToMenu">
           <text>返回菜单</text>
         </view>
       </view>
     </view>
   </view>
 
+  <view class="settings-modal {{showSettings ? 'show' : ''}}">
+    <view class="modal-content">
+      <text class="modal-title">摇杆设置</text>
+      <view class="setting-row">
+        <text class="setting-label">大小</text>
+        <slider class="setting-slider" min="160" max="320" value="{{joystickSize}}"
+                bindchange="onJoystickSizeChange" activeColor="#6a6a8a" backgroundColor="#2a2a4a"
+                block-size="16" step="20" />
+      </view>
+      <view class="setting-row">
+        <text class="setting-label">透明度</text>
+        <slider class="setting-slider" min="30" max="100" value="{{joystickOpacityPercent}}"
+                bindchange="onJoystickOpacityChange" activeColor="#6a6a8a" backgroundColor="#2a2a4a"
+                block-size="16" step="10" />
+      </view>
+      <view class="modal-btns">
+        <view class="modal-btn" bindtap="toggleSettings">
+          <text>确定</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <view class="game-over-modal {{gameOver ? 'show' : ''}}">
-    <view class="game-over-content">
-      <text class="game-over-title">{{gameWin ? '恭喜过关!' : '游戏结束'}}</text>
-      <view class="game-over-btns">
-        <view class="game-over-btn" bindtap="restartLevel" wx:if="{{!gameWin}}">
+    <view class="modal-content">
+      <text class="modal-title">{{gameWin ? '恭喜过关!' : '游戏结束'}}</text>
+      <text class="modal-score" wx:if="{{gameWin}}">得分: {{score}}</text>
+      <view class="modal-btns">
+        <view class="modal-btn" bindtap="restartLevel" wx:if="{{!gameWin}}">
           <text>重新开始</text>
         </view>
-        <view class="game-over-btn" bindtap="nextLevel" wx:if="{{gameWin && level < 10}}">
+        <view class="modal-btn" bindtap="nextLevel" wx:if="{{gameWin && level < 35}}">
           <text>下一关</text>
         </view>
-        <view class="game-over-btn" bindtap="exitToMenu">
+        <view class="modal-btn" bindtap="exitToMenu">
           <text>返回菜单</text>
         </view>
       </view>
@@ -83,7 +148,7 @@
 
   <view class="level-start-modal {{showLevelStart ? 'show' : ''}}">
     <view class="level-start-content">
-      <text class="level-start-title">第 {{level}} 关</text>
+      <text class="level-start-title">STAGE {{level}}</text>
       <text class="level-start-subtitle">{{difficultyText}}</text>
     </view>
   </view>
