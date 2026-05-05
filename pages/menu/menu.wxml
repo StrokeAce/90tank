@@ -1,0 +1,48 @@
+<view class="container">
+  <view class="title">
+    <text class="title-text">90坦克</text>
+    <text class="subtitle">经典怀旧版</text>
+  </view>
+
+  <view class="menu">
+    <view class="menu-item" bindtap="startGame">
+      <text>开始游戏</text>
+    </view>
+    <view class="menu-item" bindtap="showHelp">
+      <text>游戏说明</text>
+    </view>
+  </view>
+
+  <view class="tank-icon">
+    <view class="tank-body"></view>
+    <view class="tank-turret"></view>
+  </view>
+
+  <view class="help-modal {{showHelpModal ? 'show' : ''}}" bindtap="hideHelp">
+    <view class="help-content" catchtap="stopProp">
+      <text class="help-title">游戏说明</text>
+      <view class="help-text">
+        <text>【操控方式】</text>
+        <text>左侧虚拟摇杆：控制坦克移动方向</text>
+        <text>右侧按钮：发射炮弹</text>
+        <text>连按两次换方向键：加速前进</text>
+        <text></text>
+        <text>【游戏目标】</text>
+        <text>消灭所有敌方坦克</text>
+        <text>保护己方基地（老鹰）</text>
+        <text>每关消灭20个敌人即可过关</text>
+        <text></text>
+        <text>【道具说明】</text>
+        <text>⭐ 星星：获得超级炮弹</text>
+        <text>💣 炸弹：消灭所有敌人</text>
+        <text>🛡️ 盾牌：短暂无敌</text>
+        <text>⏰ 时钟：敌人暂停</text>
+        <text></text>
+        <text>【游戏模式】</text>
+        <text>单人模式：难度较低</text>
+        <text>双人模式：难度正常</text>
+      </view>
+      <view class="help-close" bindtap="hideHelp">关闭</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,90 @@
+<view class="game-container">
+  <canvas type="2d" id="gameCanvas" canvas-id="gameCanvas" class="game-canvas" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd"></canvas>
+
+  <view class="game-hud">
+    <view class="hud-left">
+      <view class="hud-item">
+        <text class="hud-label">关卡</text>
+        <text class="hud-value">{{level}}</text>
+      </view>
+      <view class="hud-item">
+        <text class="hud-label">玩家1</text>
+        <text class="hud-value">{{lives1}}</text>
+      </view>
+      <view class="hud-item" wx:if="{{!isSinglePlayer}}">
+        <text class="hud-label">玩家2</text>
+        <text class="hud-value">{{lives2}}</text>
+      </view>
+      <view class="hud-item">
+        <text class="hud-label">敌人</text>
+        <text class="hud-value">{{enemyCount}}</text>
+      </view>
+    </view>
+    <view class="hud-right">
+      <view class="mute-btn" bindtap="toggleMute">
+        <text>{{isMuted ? '🔇' : '🔊'}}</text>
+      </view>
+      <view class="pause-btn" bindtap="togglePause">
+        <text>{{isPaused ? '继续' : '暂停'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="controls-overlay">
+    <view class="joystick-area" id="joystickArea">
+      <view class="joystick-base" id="joystickBase">
+        <view class="joystick-stick {{joystickActive ? 'active' : ''}}" id="joystickStick"></view>
+      </view>
+    </view>
+
+    <view class="fire-buttons">
+      <view class="fire-btn fire-btn-p1" bindtouchstart="onFireStart" bindtouchend="onFireEnd" data-player="1">
+        <text>1P</text>
+      </view>
+      <view class="fire-btn fire-btn-p2" wx:if="{{!isSinglePlayer}}" bindtouchstart="onFireStart" bindtouchend="onFireEnd" data-player="2">
+        <text>2P</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="pause-modal {{isPaused ? 'show' : ''}}">
+    <view class="pause-content">
+      <text class="pause-title">游戏暂停</text>
+      <view class="pause-btns">
+        <view class="pause-btn-item" bindtap="togglePause">
+          <text>继续游戏</text>
+        </view>
+        <view class="pause-btn-item" bindtap="restartLevel">
+          <text>重新开始</text>
+        </view>
+        <view class="pause-btn-item" bindtap="exitToMenu">
+          <text>返回菜单</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="game-over-modal {{gameOver ? 'show' : ''}}">
+    <view class="game-over-content">
+      <text class="game-over-title">{{gameWin ? '恭喜过关!' : '游戏结束'}}</text>
+      <view class="game-over-btns">
+        <view class="game-over-btn" bindtap="restartLevel" wx:if="{{!gameWin}}">
+          <text>重新开始</text>
+        </view>
+        <view class="game-over-btn" bindtap="nextLevel" wx:if="{{gameWin && level < 10}}">
+          <text>下一关</text>
+        </view>
+        <view class="game-over-btn" bindtap="exitToMenu">
+          <text>返回菜单</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="level-start-modal {{showLevelStart ? 'show' : ''}}">
+    <view class="level-start-content">
+      <text class="level-start-title">第 {{level}} 关</text>
+      <text class="level-start-subtitle">{{difficultyText}}</text>
+    </view>
+  </view>
+</view>
