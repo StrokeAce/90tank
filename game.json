@@ -1,0 +1,13 @@
+{
+  "deviceOrientation": "landscape",
+  "showStatusBar": false,
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "subpackages": [],
+  "workers": "",
+  "plugins": {},
+  "resizable": false,
+  "navigateToMiniProgramAppIdList": []
+}

@@ -1,6 +1,6 @@
 {
   "libVersion": "3.15.2",
-  "projectname": "90tank",
+  "projectname": "tank",
   "condition": {},
   "setting": {
     "urlCheck": false,
@@ -14,10 +14,9 @@
     "useStaticServer": false,
     "useLanDebug": false,
     "showES6CompileOption": false,
-    "compileHotReLoad": false,
+    "compileHotReLoad": true,
     "checkInvalidKey": true,
     "ignoreDevUnusedFiles": true,
-    "bigPackageSizeSupport": false,
-    "useIsolateContext": true
+    "bigPackageSizeSupport": false
   }
 }

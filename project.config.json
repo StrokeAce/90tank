@@ -1,7 +1,12 @@
 {
-  "description": "90坦克游戏项目配置文件",
+  "description": "经典90坦克 - 横屏触控版",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "value": "README.md",
+        "type": "file"
+      }
+    ],
     "include": []
   },
   "setting": {
@@ -22,21 +27,15 @@
     "checkSiteMap": true,
     "uploadWithSourceMap": true,
     "compileHotReLoad": false,
-    "useMultiFrameRuntime": true,
-    "useApiHook": true,
-    "useApiHostProcess": true,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
     },
-    "enableEngineNative": false,
-    "useIsolateContext": true,
-    "userConfirmedBundleSwitch": false,
+    "compileWorklet": false,
     "packNpmManually": false,
     "packNpmRelationList": [],
     "minifyWXSS": true,
-    "compileWorklet": false,
     "minifyWXML": true,
     "localPlugins": false,
     "disableUseStrict": false,
@@ -45,14 +44,13 @@
     "swc": false,
     "disableSWC": true
   },
-  "compileType": "game",
-  "libVersion": "2.25.2",
+  "compileType": "miniprogram",
+  "libVersion": "3.15.2",
   "appid": "wx345044b5ae420cc2",
-  "projectname": "90tank",
+  "projectname": "tank90",
   "condition": {},
-  "editorSetting": {
-    "tabIndent": "insertSpaces",
-    "tabSize": 2
-  },
-  "simulatorPluginLibVersion": {}
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {},
+  "miniprogramRoot": "./",
+  "cloudfunctionRoot": ""
 }

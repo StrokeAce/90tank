@@ -1,14 +1,13 @@
 {
   "pages": [
-    "pages/menu/menu",
-    "pages/levels/levels",
-    "pages/game/game"
+    "pages/index/index"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#000000",
-    "navigationBarTitleText": "90坦克",
+    "navigationBarTitleText": "经典90坦克",
     "navigationBarTextStyle": "white",
+    "backgroundColor": "#000000",
     "pageOrientation": "landscape"
   },
   "style": "v2",
