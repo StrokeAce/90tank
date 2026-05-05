@@ -26,20 +26,25 @@ Renderer.prototype.init = function(mainCanvas) {
 };
 
 Renderer.prototype._calculateLayout = function() {
-  // 直接占满全屏
-  var scaleX = this.screenWidth / this.gameWidth;
-  var scaleY = this.screenHeight / this.gameHeight;
+  // 让地图尽可能填满屏幕，但底部留空间给控制按钮
+  var availableHeight = this.screenHeight - 140;
+  
+  var mapWidthScaled = CONFIG.TILE.MAP_WIDTH_SCALED;
+  var mapHeightScaled = CONFIG.TILE.MAP_HEIGHT_SCALED;
+  
+  var scaleX = this.screenWidth / mapWidthScaled;
+  var scaleY = availableHeight / mapHeightScaled;
   this.scale = Math.min(scaleX, scaleY);
 
-  var renderedW = this.gameWidth * this.scale;
-  var renderedH = this.gameHeight * this.scale;
+  var renderedW = mapWidthScaled * this.scale;
+  var renderedH = mapHeightScaled * this.scale;
   
-  // 居中放置
+  // 水平居中，垂直靠上但留底部空间给控制
   this.offsetX = Math.floor((this.screenWidth - renderedW) / 2);
-  this.offsetY = Math.floor((this.screenHeight - renderedH) / 2);
+  this.offsetY = 10;
 
-  this.mapOffsetX = this.offsetX + CONFIG.TILE.MAP_OFFSET_X * this.scale;
-  this.mapOffsetY = this.offsetY + CONFIG.TILE.MAP_OFFSET_Y * this.scale;
+  this.mapOffsetX = this.offsetX;
+  this.mapOffsetY = this.offsetY;
 };
 
 Renderer.prototype.clear = function() {
@@ -49,11 +54,10 @@ Renderer.prototype.clear = function() {
 
 Renderer.prototype.drawBorder = function() {
   this.ctx.save();
-  this.ctx.translate(this.offsetX, this.offsetY);
 
   var bw = CONFIG.TILE.BORDER_WIDTH * this.scale;
-  var mapX = CONFIG.TILE.MAP_OFFSET_X * this.scale;
-  var mapY = CONFIG.TILE.MAP_OFFSET_Y * this.scale;
+  var mapX = this.mapOffsetX;
+  var mapY = this.mapOffsetY;
   var mapW = CONFIG.TILE.MAP_WIDTH_SCALED * this.scale;
   var mapH = CONFIG.TILE.MAP_HEIGHT_SCALED * this.scale;
 

@@ -26,9 +26,10 @@ HUD.prototype.update = function(data) {
 };
 
 HUD.prototype.render = function(ctx) {
-  this._renderEnemyIcons(ctx);
-  this._renderPlayerInfo(ctx);
-  this._renderStageInfo(ctx);
+  // HUD暂时禁用，因为地图现在铺满屏幕
+  // this._renderEnemyIcons(ctx);
+  // this._renderPlayerInfo(ctx);
+  // this._renderStageInfo(ctx);
 };
 
 HUD.prototype._renderEnemyIcons = function(ctx) {
