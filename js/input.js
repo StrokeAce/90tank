@@ -245,11 +245,6 @@ InputManager.prototype._calculateLayout = function(sw, sh) {
       deadZone: CONFIG.INPUT.JOYSTICK_DEAD_ZONE
     });
 
-    this.rightStick = new VirtualJoystick('p1_right', sw - margin - stickRadius * 2 - fireRadius * 2 - 20, sh - bottomMargin - stickRadius, stickRadius, {
-      opacity: this.settings.joystickOpacity,
-      deadZone: CONFIG.INPUT.JOYSTICK_DEAD_ZONE
-    });
-
     this.fireButton = new FireButton('p1_fire', sw - margin - fireRadius, sh - bottomMargin - fireRadius, fireRadius, {
       opacity: CONFIG.INPUT.FIRE_BUTTON_OPACITY,
       autoFire: this.settings.autoFire
