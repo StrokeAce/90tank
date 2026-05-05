@@ -26,20 +26,20 @@ Renderer.prototype.init = function(mainCanvas) {
 };
 
 Renderer.prototype._calculateLayout = function() {
-  // 长方形地图，直接填满屏幕
-  var mapWidthScaled = CONFIG.TILE.MAP_WIDTH_SCALED;
-  var mapHeightScaled = CONFIG.TILE.MAP_HEIGHT_SCALED;
+  // 保持原来的缩放比例，用原来的地图尺寸来算scale，保持格子大小不变！
+  var originalMapWidth = 312;
+  var originalMapHeight = 312;
   
-  // 按屏幕高度来缩放，让地图高度刚好填满（留底部空间给控制按钮）
-  var availableHeight = this.screenHeight - 140;
-  this.scale = availableHeight / mapHeightScaled;
+  var scaleX = this.screenWidth / this.gameWidth;
+  var scaleY = this.screenHeight / this.gameHeight;
+  this.scale = Math.min(scaleX, scaleY);
 
-  var renderedW = mapWidthScaled * this.scale;
-  var renderedH = mapHeightScaled * this.scale;
+  var renderedW = CONFIG.TILE.MAP_WIDTH_SCALED * this.scale;
+  var renderedH = CONFIG.TILE.MAP_HEIGHT_SCALED * this.scale;
   
-  // 水平居中，垂直靠上
-  this.offsetX = (this.screenWidth - renderedW) / 2;
-  this.offsetY = 10;
+  // 居中放置，地图会更大超出没关系，但每个格子大小不变！
+  this.offsetX = Math.floor((this.screenWidth - renderedW) / 2);
+  this.offsetY = Math.floor((this.screenHeight - renderedH) / 2);
 
   this.mapOffsetX = this.offsetX;
   this.mapOffsetY = this.offsetY;
