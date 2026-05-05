@@ -50,8 +50,13 @@ VirtualJoystick.prototype.handleTouchEnd = function(touchId) {
 }
 
 VirtualJoystick.prototype._updatePosition = function(touchX, touchY) {
-  this.dx = touchX - this.centerX;
-  this.dy = touchY - this.centerY;
+  var originalDx = touchX - this.centerX;
+  var originalDy = touchY - this.centerY;
+  
+  // 横屏模式：旋转坐标
+  this.dx = -originalDy;
+  this.dy = originalDx;
+  
   var dist = Math.sqrt(this.dx * this.dx + this.dy * this.dy);
 
   if (dist > this.radius) {
@@ -69,8 +74,9 @@ VirtualJoystick.prototype._updatePosition = function(touchX, touchY) {
     this.dy = 0;
   }
 
-  this.knobX = this.centerX + this.dx;
-  this.knobY = this.centerY + this.dy;
+  // 显示时用原始坐标
+  this.knobX = this.centerX + originalDx;
+  this.knobY = this.centerY + originalDy;
 };
 
 VirtualJoystick.prototype.getDirection = function() {
@@ -258,37 +264,19 @@ InputManager.prototype._calculateLayout = function(sw, sh) {
       touchId: null
     };
   } else {
-    var halfW = sw / 2;
-
     this.leftStick = new VirtualJoystick('p1_left', margin + stickRadius, sh - bottomMargin - stickRadius, stickRadius * 0.85, {
       opacity: this.settings.joystickOpacity,
       deadZone: CONFIG.INPUT.JOYSTICK_DEAD_ZONE
     });
-    this.rightStick = new VirtualJoystick('p1_right', halfW - margin - stickRadius * 2 - fireRadius * 2, sh - bottomMargin - stickRadius, stickRadius * 0.85, {
-      opacity: this.settings.joystickOpacity,
-      deadZone: CONFIG.INPUT.JOYSTICK_DEAD_ZONE
-    });
-    this.fireButton = new FireButton('p1_fire', halfW - margin - fireRadius, sh - bottomMargin - fireRadius, fireRadius * 0.85, {
-      opacity: CONFIG.INPUT.FIRE_BUTTON_OPACITY,
-      autoFire: this.settings.autoFire
-    });
 
-    this.player2LeftStick = new VirtualJoystick('p2_left', halfW + margin + stickRadius, sh - bottomMargin - stickRadius, stickRadius * 0.85, {
-      opacity: this.settings.joystickOpacity,
-      deadZone: CONFIG.INPUT.JOYSTICK_DEAD_ZONE
-    });
-    this.player2RightStick = new VirtualJoystick('p2_right', sw - margin - stickRadius * 2 - fireRadius * 2 - 20, sh - bottomMargin - stickRadius, stickRadius * 0.85, {
-      opacity: this.settings.joystickOpacity,
-      deadZone: CONFIG.INPUT.JOYSTICK_DEAD_ZONE
-    });
-    this.player2FireButton = new FireButton('p2_fire', sw - margin - fireRadius, sh - bottomMargin - fireRadius, fireRadius * 0.85, {
+    this.fireButton = new FireButton('p1_fire', sw - margin - fireRadius, sh - bottomMargin - fireRadius, fireRadius * 0.85, {
       opacity: CONFIG.INPUT.FIRE_BUTTON_OPACITY,
       autoFire: this.settings.autoFire
     });
 
     this.pauseButton = {
-      x: sw / 2 - 15,
-      y: 5,
+      x: sw - 40,
+      y: 15,
       w: 30,
       h: 20,
       touchId: null
@@ -463,12 +451,6 @@ InputManager.prototype.render = function(ctx) {
   if (this.leftStick) this.leftStick.render(ctx);
   if (this.rightStick) this.rightStick.render(ctx);
   if (this.fireButton) this.fireButton.render(ctx);
-
-  if (this.twoPlayer) {
-    if (this.player2LeftStick) this.player2LeftStick.render(ctx);
-    if (this.player2RightStick) this.player2RightStick.render(ctx);
-    if (this.player2FireButton) this.player2FireButton.render(ctx);
-  }
 
   this._renderPauseButton(ctx);
 };
