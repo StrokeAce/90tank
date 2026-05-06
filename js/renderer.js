@@ -26,18 +26,13 @@ Renderer.prototype.init = function(mainCanvas) {
 };
 
 Renderer.prototype._calculateLayout = function() {
-  // 保持原来的缩放比例，用原来的地图尺寸来算scale，保持格子大小不变！
-  var originalMapWidth = 312;
-  var originalMapHeight = 312;
-  
-  var scaleX = this.screenWidth / this.gameWidth;
-  var scaleY = this.screenHeight / this.gameHeight;
-  this.scale = Math.min(scaleX, scaleY);
+  // 不缩放，保持原始尺寸
+  this.scale = 1;
 
   var renderedW = CONFIG.TILE.MAP_WIDTH_SCALED * this.scale;
   var renderedH = CONFIG.TILE.MAP_HEIGHT_SCALED * this.scale;
   
-  // 居中放置，地图会更大超出没关系，但每个格子大小不变！
+  // 居中放置
   this.offsetX = Math.floor((this.screenWidth - renderedW) / 2);
   this.offsetY = Math.floor((this.screenHeight - renderedH) / 2);
 

@@ -10,7 +10,7 @@ function GameMap() {
   this.tileSize = CONFIG.TILE.TILE_SIZE_SCALED;
   this.eagleAlive = true;
   this.eagleRow = 24;
-  this.eagleCol = 21; // 原来12 + 9 = 21
+  this.eagleCol = 21; // 鹰旗宽度2格(24px)，右移一格避免覆盖右墙
   this.waterFrame = 0;
   this.waterFrameTimer = 0;
   this.waterFrameInterval = 400;
@@ -60,6 +60,29 @@ GameMap.prototype.render = function(ctx) {
   }
 
   this._renderEagle(ctx);
+  this._renderGrid(ctx);
+};
+
+GameMap.prototype._renderGrid = function(ctx) {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 0.5;
+  
+  for (var row = 0; row <= this.rows; row++) {
+    ctx.beginPath();
+    ctx.moveTo(0, row * this.cellSize);
+    ctx.lineTo(this.cols * this.cellSize, row * this.cellSize);
+    ctx.stroke();
+  }
+  
+  for (var col = 0; col <= this.cols; col++) {
+    ctx.beginPath();
+    ctx.moveTo(col * this.cellSize, 0);
+    ctx.lineTo(col * this.cellSize, this.rows * this.cellSize);
+    ctx.stroke();
+  }
+  
+  ctx.restore();
 };
 
 GameMap.prototype.renderForest = function(ctx) {
