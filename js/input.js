@@ -216,6 +216,7 @@ function InputManager() {
 
   this._paused = false;
   this._pauseCallback = null;
+  this._pauseMenuCallback = null;
 
   this.settings = {
     joystickSize: 1.0,
@@ -329,6 +330,18 @@ InputManager.prototype._handleTouchStart = function(touch) {
   var tx = touch.clientX;
   var ty = touch.clientY;
   var tid = touch.identifier;
+
+  if (this._paused) {
+    if (this._checkPauseButton(tx, ty)) {
+      this._paused = !this._paused;
+      if (this._pauseCallback) this._pauseCallback(this._paused);
+      return;
+    }
+    if (this._pauseMenuCallback) {
+      this._pauseMenuCallback(tx, ty);
+    }
+    return;
+  }
 
   if (this._checkPauseButton(tx, ty)) {
     this._paused = !this._paused;
@@ -445,6 +458,10 @@ InputManager.prototype.isPaused = function() {
 
 InputManager.prototype.setPauseCallback = function(cb) {
   this._pauseCallback = cb;
+};
+
+InputManager.prototype.setPauseMenuCallback = function(cb) {
+  this._pauseMenuCallback = cb;
 };
 
 InputManager.prototype.render = function(ctx) {

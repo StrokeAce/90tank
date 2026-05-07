@@ -67,6 +67,9 @@ GameScene.prototype.enter = function(data) {
   this.player2Lives = CONFIG.GAME.PLAYER_INITIAL_LIVES;
   this.gameOver = false;
   this.levelComplete = false;
+  this.stageIntro = true;
+  this.stageIntroTimer = 0;
+  this.paused = false;
   this.enemies = [];
   this.enemyAIs = [];
   this.explosions = [];
@@ -80,6 +83,7 @@ GameScene.prototype.enter = function(data) {
   var screenInfo = this.renderer.getScreenInfo();
   this.input.init(screenInfo.width, screenInfo.height, this.twoPlayer);
   this.input.setPauseCallback(this._onPause.bind(this));
+  this.input.setPauseMenuCallback(this._onPauseMenuClick.bind(this));
 
   this._loadStage();
 };
@@ -669,6 +673,18 @@ GameScene.prototype._onPause = function(paused) {
   this.paused = paused;
 };
 
+GameScene.prototype._onPauseMenuClick = function(tx, ty) {
+  var centerX = this.renderer.screenWidth / 2;
+  var centerY = this.renderer.screenHeight / 2;
+
+  if (ty >= centerY + 10 && ty <= centerY + 30) {
+    this.paused = false;
+    this.input._paused = false;
+  } else if (ty >= centerY + 40 && ty <= centerY + 60) {
+    this.sceneManager.changeScene('menu');
+  }
+};
+
 GameScene.prototype._updateHUD = function() {
   var enemyCount = this.enemyQueue.length + this.enemies.length;
   this.hud.update({
@@ -735,12 +751,23 @@ GameScene.prototype.render = function() {
 
   if (this.paused) {
     this.renderer.renderOverlay(0.5, '#000000');
-    this.renderer.renderCenteredText('PAUSED', this.renderer.gameHeight / 2 - 10, {
-      size: 20,
-      bold: true,
-      color: CONFIG.COLOR.HUD_TEXT,
-      shadow: true
-    });
+    var ctx = this.renderer.ctx;
+    var centerX = this.renderer.screenWidth / 2;
+    var centerY = this.renderer.screenHeight / 2;
+    ctx.save();
+    ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+    ctx.font = 'bold 20px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PAUSED', centerX, centerY - 30);
+
+    ctx.font = '14px monospace';
+    ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+    ctx.fillText('RESUME', centerX, centerY + 20);
+
+    ctx.fillStyle = '#888888';
+    ctx.fillText('QUIT', centerX, centerY + 50);
+    ctx.restore();
   }
 
   if (this.gameOver) {
