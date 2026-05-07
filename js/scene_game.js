@@ -673,7 +673,7 @@ GameScene.prototype.render = function() {
   this.renderer.renderMap(this.gameMap);
 
   for (var i = 0; i < this.powerups.length; i++) {
-    this.renderer.renderPowerUp(this.powerups[i]);
+    this.renderer.renderPowerup(this.powerups[i]);
   }
 
   if (this.player1 && this.player1.alive) {

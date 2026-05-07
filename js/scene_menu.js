@@ -105,11 +105,11 @@ MenuScene.prototype.render = function() {
     shadow: true
   });
 
-  this.renderer.renderCenteredText('90', this.titleY + 55, {
-    size: 16,
-    color: CONFIG.COLOR.HUD_TEXT,
-    shadow: true
-  });
+  // this.renderer.renderCenteredText('90', this.titleY + 55, {
+  //   size: 16,
+  //   color: CONFIG.COLOR.HUD_TEXT,
+  //   shadow: true
+  // });
 
   var startY = 160;
   var optionHeight = 25;
