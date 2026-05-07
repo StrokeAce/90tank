@@ -30,28 +30,29 @@ MenuScene.prototype.exit = function() {
 
 MenuScene.prototype.handleTouchStart = function(e) {
   if (this.inputCooldown > 0) return;
-  
+
   var touches = e.touches || [];
   if (touches.length === 0) return;
   var touch = touches[0];
-  
-  var screenInfo = this.renderer.getScreenInfo();
-  var gameX = (touch.clientX - screenInfo.offsetX) / screenInfo.scale;
-  var gameY = (touch.clientY - screenInfo.offsetY) / screenInfo.scale;
 
-  var startY = 160;
+  var tx = touch.clientX;
+  var ty = touch.clientY;
+  var centerX = this.renderer.screenWidth / 2;
+  var centerY = this.renderer.screenHeight / 2;
+
+  var startY = centerY - 40;
   var optionHeight = 25;
 
   for (var i = 0; i < this.options.length; i++) {
     var optY = startY + i * optionHeight;
-    if (gameY >= optY - 10 && gameY <= optY + optionHeight) {
+    if (ty >= optY - 10 && ty <= optY + optionHeight) {
       this.selectedOption = i;
       this._confirmSelection();
       return;
     }
   }
 
-  if (gameX < this.renderer.gameWidth / 2) {
+  if (tx < centerX) {
     this.selectedOption = (this.selectedOption - 1 + this.options.length) % this.options.length;
   } else {
     this.selectedOption = (this.selectedOption + 1) % this.options.length;
@@ -90,59 +91,41 @@ MenuScene.prototype._confirmSelection = function() {
 
 MenuScene.prototype.render = function() {
   this.renderer.clear();
+  var ctx = this.renderer.ctx;
+  var centerX = this.renderer.screenWidth / 2;
+  var centerY = this.renderer.screenHeight / 2;
 
-  this.renderer.renderCenteredText('BATTLE', this.titleY, {
-    size: 28,
-    bold: true,
-    color: CONFIG.COLOR.PLAYER1_BODY,
-    shadow: true
-  });
-
-  this.renderer.renderCenteredText('CITY', this.titleY + 30, {
-    size: 28,
-    bold: true,
-    color: CONFIG.COLOR.PLAYER1_BODY,
-    shadow: true
-  });
-
-  // this.renderer.renderCenteredText('90', this.titleY + 55, {
-  //   size: 16,
-  //   color: CONFIG.COLOR.HUD_TEXT,
-  //   shadow: true
-  // });
+  ctx.save();
+  ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+  ctx.font = 'bold 28px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  if (this.titleY < this.titleTargetY) this.titleY += 3;
+  ctx.fillText('BATTLE', centerX, this.titleY);
+  ctx.fillText('CITY', centerX, this.titleY + 30);
 
   var startY = 160;
   var optionHeight = 25;
-
+  ctx.font = '14px monospace';
   for (var i = 0; i < this.options.length; i++) {
     var y = startY + i * optionHeight;
     var isSelected = i === this.selectedOption;
-
     if (isSelected && this.blinkOn) {
-      this.renderer.renderText('>', this.renderer.gameWidth / 2 - 70, y, {
-        size: 14,
-        bold: true,
-        color: CONFIG.COLOR.PLAYER1_BODY
-      });
+      ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+      ctx.fillText('>', centerX - 70, y);
     }
-
-    this.renderer.renderCenteredText(this.options[i], y, {
-      size: 14,
-      bold: isSelected,
-      color: isSelected ? CONFIG.COLOR.PLAYER1_BODY : CONFIG.COLOR.HUD_TEXT,
-      shadow: true
-    });
+    ctx.fillStyle = isSelected ? CONFIG.COLOR.PLAYER1_BODY : CONFIG.COLOR.HUD_TEXT;
+    ctx.fillText(this.options[i], centerX, y);
   }
 
-  this.renderer.renderCenteredText('HIGH SCORE: ' + Utils.formatScore(Storage.getHighScore()), 280, {
-    size: 10,
-    color: CONFIG.COLOR.HUD_TEXT
-  });
+  ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+  ctx.font = '10px monospace';
+  ctx.fillText('HIGH SCORE: ' + Utils.formatScore(Storage.getHighScore()), centerX, 280);
 
-  this.renderer.renderCenteredText('TOUCH TO SELECT', 300, {
-    size: 8,
-    color: '#7C7C7C'
-  });
+  ctx.fillStyle = '#7C7C7C';
+  ctx.font = '8px monospace';
+  ctx.fillText('TOUCH TO SELECT', centerX, 300);
+  ctx.restore();
 };
 
 module.exports = MenuScene;
