@@ -273,12 +273,26 @@ GameScene.prototype._updateBaseSteel = function(dt) {
 };
 
 GameScene.prototype._updatePlayerInput = function(dt) {
+  var allTanks = this._getAllTanks();
+
   // 更新玩家1
   if (this.player1) {
     if (this.player1.alive && !this.player1.spawning) {
       var p1Input = this.input.getPlayer1Input();
       if (p1Input.moveDirection >= 0) {
+        var oldX = this.player1.x;
+        var oldY = this.player1.y;
         this.player1.move(p1Input.moveDirection, this.gameMap);
+        for (var i = 0; i < allTanks.length; i++) {
+          var other = allTanks[i];
+          if (other === this.player1 || !other.alive || other.spawning) continue;
+          if (Utils.rectOverlap(this.player1.x, this.player1.y, this.player1.width, this.player1.height,
+                              other.x, other.y, other.width, other.height)) {
+            this.player1.x = oldX;
+            this.player1.y = oldY;
+            break;
+          }
+        }
       } else {
         this.player1.moving = false;
       }
@@ -294,7 +308,19 @@ GameScene.prototype._updatePlayerInput = function(dt) {
     if (this.player2.alive && !this.player2.spawning) {
       var p2Input = this.input.getPlayer2Input();
       if (p2Input && p2Input.moveDirection >= 0) {
+        var oldX = this.player2.x;
+        var oldY = this.player2.y;
         this.player2.move(p2Input.moveDirection, this.gameMap);
+        for (var i = 0; i < allTanks.length; i++) {
+          var other = allTanks[i];
+          if (other === this.player2 || !other.alive || other.spawning) continue;
+          if (Utils.rectOverlap(this.player2.x, this.player2.y, this.player2.width, this.player2.height,
+                              other.x, other.y, other.width, other.height)) {
+            this.player2.x = oldX;
+            this.player2.y = oldY;
+            break;
+          }
+        }
       } else {
         this.player2.moving = false;
       }
@@ -661,12 +687,17 @@ GameScene.prototype.render = function() {
   this.renderer.beginFrame();
 
   if (this.stageIntro) {
-    this.renderer.renderCenteredText('STAGE ' + (this.stage + 1), this.renderer.gameHeight / 2 - 10, {
-      size: 20,
-      bold: true,
-      color: CONFIG.COLOR.HUD_TEXT,
-      shadow: true
-    });
+    this.renderer.renderOverlay(0.5, '#000000');
+    var ctx = this.renderer.ctx;
+    var centerX = this.renderer.screenWidth / 2;
+    var centerY = this.renderer.screenHeight / 2;
+    ctx.save();
+    ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+    ctx.font = 'bold 20px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('STAGE ' + (this.stage + 1), centerX, centerY);
+    ctx.restore();
     return;
   }
 
@@ -714,22 +745,30 @@ GameScene.prototype.render = function() {
 
   if (this.gameOver) {
     this.renderer.renderOverlay(0.6, '#000000');
-    this.renderer.renderCenteredText('GAME OVER', this.renderer.gameHeight / 2 - 10, {
-      size: 22,
-      bold: true,
-      color: '#FF4444',
-      shadow: true
-    });
+    var ctx = this.renderer.ctx;
+    var centerX = this.renderer.screenWidth / 2;
+    var centerY = this.renderer.screenHeight / 2;
+    ctx.save();
+    ctx.fillStyle = '#FF4444';
+    ctx.font = 'bold 22px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('GAME OVER', centerX, centerY);
+    ctx.restore();
   }
 
   if (this.levelComplete) {
     this.renderer.renderOverlay(0.3, '#000000');
-    this.renderer.renderCenteredText('STAGE CLEAR!', this.renderer.gameHeight / 2 - 10, {
-      size: 20,
-      bold: true,
-      color: CONFIG.COLOR.PLAYER1_BODY,
-      shadow: true
-    });
+    var ctx = this.renderer.ctx;
+    var centerX = this.renderer.screenWidth / 2;
+    var centerY = this.renderer.screenHeight / 2;
+    ctx.save();
+    ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+    ctx.font = 'bold 20px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('STAGE CLEAR!', centerX, centerY);
+    ctx.restore();
   }
 };
 

@@ -39,11 +39,11 @@ StageSelectScene.prototype.handleTouchStart = function(e) {
   var centerY = this.renderer.screenHeight / 2;
 
   var cols = this.stagesPerRow;
-  var cellW = 50 * scale;
-  var cellH = 50 * scale;
+  var cellW = 45 * scale;
+  var cellH = 45 * scale;
   var totalW = cols * cellW;
   var startX = centerX - totalW / 2;
-  var startY = 70 * scale;
+  var startY = 60 * scale;
 
   for (var i = 0; i < this.totalLevels; i++) {
     var col = i % cols;
@@ -60,7 +60,7 @@ StageSelectScene.prototype.handleTouchStart = function(e) {
     }
   }
 
-  if (ty > 300 * scale) {
+  if (ty > 375 * scale) {
     this._confirmSelection();
   }
 
@@ -95,16 +95,16 @@ StageSelectScene.prototype.render = function() {
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText('SELECT STAGE', centerX, 30 * scale);
+  ctx.fillText('SELECT STAGE', centerX, 20 * scale);
 
   var cols = this.stagesPerRow;
   var rows = Math.ceil(this.totalLevels / cols);
-  var cellW = 50 * scale;
-  var cellH = 50 * scale;
+  var cellW = 45 * scale;
+  var cellH = 45 * scale;
   var totalW = cols * cellW;
   var totalH = rows * cellH;
   var startX = centerX - totalW / 2;
-  var startY = 70 * scale;
+  var startY = 60 * scale;
 
   for (var i = 0; i < this.totalLevels; i++) {
     var col = i % cols;
@@ -137,7 +137,7 @@ StageSelectScene.prototype.render = function() {
 
   ctx.fillStyle = '#7C7C7C';
   ctx.font = '8px monospace';
-  ctx.fillText('TAP STAGE TO START', centerX, 335 * scale);
+  ctx.fillText('TAP STAGE TO START', centerX, 380 * scale);
   ctx.restore();
 };
 

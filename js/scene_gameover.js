@@ -37,48 +37,46 @@ GameOverScene.prototype.update = function(dt) {
 
 GameOverScene.prototype.render = function() {
   this.renderer.clear();
+  var ctx = this.renderer.ctx;
+  var centerX = this.renderer.screenWidth / 2;
+  var centerY = this.renderer.screenHeight / 2;
+  var scale = this.renderer.scale;
+
+  ctx.save();
 
   var title = this.victory ? 'VICTORY!' : 'GAME OVER';
   var titleColor = this.victory ? CONFIG.COLOR.PLAYER1_BODY : '#FF4444';
 
-  this.renderer.renderCenteredText(title, 80, {
-    size: 24,
-    bold: true,
-    color: titleColor,
-    shadow: true
-  });
+  ctx.fillStyle = titleColor;
+  ctx.font = 'bold 24px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(title, centerX, 80 * scale);
 
-  this.renderer.renderCenteredText('SCORE', 140, {
-    size: 14,
-    color: CONFIG.COLOR.HUD_TEXT
-  });
+  ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+  ctx.font = '14px monospace';
+  ctx.fillText('SCORE', centerX, 140 * scale);
 
-  this.renderer.renderCenteredText(Utils.formatScore(this.score), 165, {
-    size: 20,
-    bold: true,
-    color: CONFIG.COLOR.PLAYER1_BODY,
-    shadow: true
-  });
+  ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+  ctx.font = 'bold 20px monospace';
+  ctx.fillText(Utils.formatScore(this.score), centerX, 165 * scale);
 
-  this.renderer.renderCenteredText('STAGE REACHED: ' + this.stage, 210, {
-    size: 12,
-    color: CONFIG.COLOR.HUD_TEXT
-  });
+  ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+  ctx.font = '12px monospace';
+  ctx.fillText('STAGE REACHED: ' + this.stage, centerX, 210 * scale);
 
-  this.renderer.renderCenteredText('HIGH SCORE: ' + Utils.formatScore(Storage.getHighScore()), 240, {
-    size: 12,
-    color: CONFIG.COLOR.HUD_TEXT
-  });
+  ctx.fillText('HIGH SCORE: ' + Utils.formatScore(Storage.getHighScore()), centerX, 240 * scale);
 
   if (this.inputCooldown <= 0) {
     var blink = Math.floor(this.timer * 2) % 2 === 0;
     if (blink) {
-      this.renderer.renderCenteredText('TAP TO CONTINUE', 300, {
-        size: 10,
-        color: '#7C7C7C'
-      });
+      ctx.fillStyle = '#7C7C7C';
+      ctx.font = '10px monospace';
+      ctx.fillText('TAP TO CONTINUE', centerX, 300 * scale);
     }
   }
+
+  ctx.restore();
 };
 
 module.exports = GameOverScene;
