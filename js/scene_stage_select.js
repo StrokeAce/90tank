@@ -27,20 +27,23 @@ StageSelectScene.prototype.exit = function() {
 
 StageSelectScene.prototype.handleTouchStart = function(e) {
   if (this.inputCooldown > 0) return;
-  
+
   var touches = e.touches || [];
   if (touches.length === 0) return;
   var touch = touches[0];
-  
-  var screenInfo = this.renderer.getScreenInfo();
-  var gameX = (touch.clientX - screenInfo.offsetX) / screenInfo.scale;
-  var gameY = (touch.clientY - screenInfo.offsetY) / screenInfo.scale;
 
-  var startX = 120;
-  var startY = 80;
-  var cellW = 50;
-  var cellH = 50;
+  var tx = touch.clientX;
+  var ty = touch.clientY;
+  var scale = this.renderer.scale;
+  var centerX = this.renderer.screenWidth / 2;
+  var centerY = this.renderer.screenHeight / 2;
+
   var cols = this.stagesPerRow;
+  var cellW = 50 * scale;
+  var cellH = 50 * scale;
+  var totalW = cols * cellW;
+  var startX = centerX - totalW / 2;
+  var startY = 70 * scale;
 
   for (var i = 0; i < this.totalLevels; i++) {
     var col = i % cols;
@@ -48,7 +51,7 @@ StageSelectScene.prototype.handleTouchStart = function(e) {
     var cx = startX + col * cellW;
     var cy = startY + row * cellH;
 
-    if (gameX >= cx && gameX < cx + cellW && gameY >= cy && gameY < cy + cellH) {
+    if (tx >= cx && tx < cx + cellW && ty >= cy && ty < cy + cellH) {
       if (i <= this.maxStage) {
         this.selectedStage = i;
         this._confirmSelection();
@@ -57,7 +60,7 @@ StageSelectScene.prototype.handleTouchStart = function(e) {
     }
   }
 
-  if (gameY > 300) {
+  if (ty > 300 * scale) {
     this._confirmSelection();
   }
 
@@ -82,19 +85,26 @@ StageSelectScene.prototype._confirmSelection = function() {
 
 StageSelectScene.prototype.render = function() {
   this.renderer.clear();
+  var ctx = this.renderer.ctx;
+  var centerX = this.renderer.screenWidth / 2;
+  var centerY = this.renderer.screenHeight / 2;
+  var scale = this.renderer.scale;
 
-  this.renderer.renderCenteredText('SELECT STAGE', 30, {
-    size: 18,
-    bold: true,
-    color: CONFIG.COLOR.HUD_TEXT,
-    shadow: true
-  });
+  ctx.save();
+  ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+  ctx.font = 'bold 18px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('SELECT STAGE', centerX, 30 * scale);
 
-  var startX = 120;
-  var startY = 80;
-  var cellW = 50;
-  var cellH = 50;
   var cols = this.stagesPerRow;
+  var rows = Math.ceil(this.totalLevels / cols);
+  var cellW = 50 * scale;
+  var cellH = 50 * scale;
+  var totalW = cols * cellW;
+  var totalH = rows * cellH;
+  var startX = centerX - totalW / 2;
+  var startY = 70 * scale;
 
   for (var i = 0; i < this.totalLevels; i++) {
     var col = i % cols;
@@ -105,36 +115,30 @@ StageSelectScene.prototype.render = function() {
     var selected = i === this.selectedStage;
 
     if (selected && this.blinkOn) {
-      this.renderer.ctx.save();
-      this.renderer.ctx.translate(this.renderer.offsetX, this.renderer.offsetY);
-      this.renderer.ctx.scale(this.renderer.scale, this.renderer.scale);
-      this.renderer.ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
-      this.renderer.ctx.globalAlpha = 0.3;
-      this.renderer.ctx.fillRect(cx, cy, cellW - 4, cellH - 4);
-      this.renderer.ctx.globalAlpha = 1.0;
-      this.renderer.ctx.restore();
+      ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+      ctx.globalAlpha = 0.3;
+      ctx.fillRect(cx, cy, cellW - 4, cellH - 4);
+      ctx.globalAlpha = 1.0;
     }
 
     var color = unlocked ? CONFIG.COLOR.HUD_TEXT : '#444444';
-    this.renderer.renderText(String(i + 1), cx + 15, cy + 15, {
-      size: 16,
-      bold: true,
-      color: color,
-      shadow: unlocked
-    });
+    ctx.fillStyle = color;
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(i + 1), cx + cellW / 2, cy + cellH / 2);
   }
 
-  this.renderer.renderCenteredText('STAGE ' + (this.selectedStage + 1), 310, {
-    size: 14,
-    bold: true,
-    color: CONFIG.COLOR.PLAYER1_BODY,
-    shadow: true
-  });
+  ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+  ctx.font = 'bold 14px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('STAGE ' + (this.selectedStage + 1), centerX, 310 * scale);
 
-  this.renderer.renderCenteredText('TAP STAGE TO START', 335, {
-    size: 8,
-    color: '#7C7C7C'
-  });
+  ctx.fillStyle = '#7C7C7C';
+  ctx.font = '8px monospace';
+  ctx.fillText('TAP STAGE TO START', centerX, 335 * scale);
+  ctx.restore();
 };
 
 module.exports = StageSelectScene;
