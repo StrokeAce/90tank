@@ -10,7 +10,7 @@ function getSprites() {
 }
 
 function PowerUp(x, y, type) {
-  Entity.call(this, x, y, CONFIG.TILE.TILE_SIZE_SCALED, CONFIG.TILE.TILE_SIZE_SCALED);
+  Entity.call(this, x, y, CONFIG.TANK.SIZE_SCALED, CONFIG.TANK.SIZE_SCALED);
   this.type = type;
   this.frameTimer = 0;
   this.frame = 0;
