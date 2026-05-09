@@ -60,7 +60,9 @@ var Audio = {
       }
 
       var base64 = this._arrayBufferToBase64(buffer);
-      var wavBase64 = this._createWavBase64(base64, sampleRate, numChannels, 8);
+      var pcmLength = numSamples * numChannels;
+      var wavBase64 = this._createWavBase64(base64, pcmLength, sampleRate, numChannels, 8);
+      if (!wavBase64) return;
       ctx.src = 'data:audio/wav;base64,' + wavBase64;
       ctx.volume = Math.min(1, volume * 2);
       ctx.play();
@@ -70,8 +72,8 @@ var Audio = {
     } catch (e) {}
   },
 
-  _createWavBase64: function(pcmBase64, sampleRate, numChannels, bitsPerSample) {
-    var pcmLength = Math.floor(pcmBase64.length * 3 / 4);
+  _createWavBase64: function(pcmBase64, pcmLength, sampleRate, numChannels, bitsPerSample) {
+    if (!pcmBase64 || pcmBase64.length === 0) return null;
     var header = this._createWavHeader(pcmLength, sampleRate, numChannels, bitsPerSample);
     var headerBase64 = this._arrayBufferToBase64(header);
     return headerBase64 + pcmBase64;
@@ -107,24 +109,16 @@ var Audio = {
   },
 
   _arrayBufferToBase64: function(buffer) {
-    var binary = '';
     var bytes = new Uint8Array(buffer);
-    for (var i = 0; i < bytes.byteLength; i++) {
+    var binary = '';
+    for (var i = 0; i < bytes.length; i++) {
       binary += String.fromCharCode(bytes[i]);
     }
-    var base64 = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    var len = binary.length;
-    for (var i = 0; i < len; i += 3) {
-      var b1 = binary.charCodeAt(i);
-      var b2 = i + 1 < len ? binary.charCodeAt(i + 1) : 0;
-      var b3 = i + 2 < len ? binary.charCodeAt(i + 2) : 0;
-      base64 += chars[b1 >> 2];
-      base64 += chars[((b1 & 3) << 4) | (b2 >> 4)];
-      base64 += i + 1 < len ? chars[((b2 & 15) << 2) | (b3 >> 6)] : '=';
-      base64 += i + 2 < len ? chars[b3 & 63] : '=';
+    try {
+      return btoa(binary);
+    } catch (e) {
+      return null;
     }
-    return base64;
   },
 
   playShoot: function() {
