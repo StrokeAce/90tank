@@ -258,7 +258,7 @@ InputManager.prototype._calculateLayout = function(sw, sh) {
     });
 
     this.pauseButton = {
-      x: sw - 40,
+      x: margin + 10,
       y: 15,
       w: 30,
       h: 20,
@@ -276,7 +276,7 @@ InputManager.prototype._calculateLayout = function(sw, sh) {
     });
 
     this.pauseButton = {
-      x: sw - 40,
+      x: margin + 10,
       y: 15,
       w: 30,
       h: 20,
