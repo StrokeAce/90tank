@@ -686,7 +686,7 @@ GameScene.prototype._onPauseMenuClick = function(tx, ty) {
 };
 
 GameScene.prototype._updateHUD = function() {
-  var enemyCount = this.enemyQueue.length + this.enemies.length;
+  var enemyCount = this.enemyQueue.length;
   this.hud.update({
     score: this.score,
     lives: this.lives,
