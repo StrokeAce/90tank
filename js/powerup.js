@@ -25,12 +25,6 @@ PowerUp.prototype.constructor = PowerUp;
 PowerUp.prototype.update = function(dt) {
   if (!this.alive) return;
 
-  this.elapsed += dt * 1000;
-  if (this.elapsed >= this.duration) {
-    this.alive = false;
-    return;
-  }
-
   this.frameTimer += dt * 1000;
   if (this.frameTimer >= this.flashInterval) {
     this.frameTimer = 0;
