@@ -27,6 +27,7 @@ HUD.prototype.update = function(data) {
 
 HUD.prototype.render = function(ctx) {
   this._renderEnemyIcons(ctx);
+  this._renderPlayerLivesCount(ctx);
 };
 
 HUD.prototype._renderEnemyIcons = function(ctx) {
@@ -96,6 +97,54 @@ HUD.prototype._renderStageInfo = function(ctx) {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
   ctx.fillText('ST ' + this.stage, stageX, stageY);
+};
+
+HUD.prototype._renderPlayerLivesCount = function(ctx) {
+  var mapRight = CONFIG.TILE.MAP_OFFSET_X + CONFIG.TILE.MAP_WIDTH_SCALED;
+  var mapBottom = CONFIG.TILE.MAP_OFFSET_Y + CONFIG.TILE.MAP_HEIGHT_SCALED;
+  var borderW = CONFIG.TILE.BORDER_WIDTH;
+
+  var startX = mapRight + borderW + 4;
+  var startY = mapBottom - 30;
+  var iconSize = 8;
+  var textOffsetX = iconSize + 4;
+  var lineHeight = 12;
+
+  ctx.font = '8px monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  this._drawPlayerMiniTank(ctx, startX, startY, iconSize, 1);
+  ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+  ctx.fillText(this.lives.toString(), startX + textOffsetX, startY);
+
+  if (this.twoPlayer) {
+    var p2Y = startY + lineHeight;
+    this._drawPlayerMiniTank(ctx, startX, p2Y, iconSize, 2);
+    ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
+    ctx.fillText(this.player2Lives.toString(), startX + textOffsetX, p2Y);
+  }
+};
+
+HUD.prototype._drawPlayerMiniTank = function(ctx, x, y, size, playerNum) {
+  var s = size;
+  if (playerNum === 1) {
+    ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+    ctx.fillRect(x + 1, y + 1, s - 2, s - 2);
+    ctx.fillStyle = CONFIG.COLOR.PLAYER1_TRACK;
+    ctx.fillRect(x, y, 1, s);
+    ctx.fillRect(x + s - 1, y, 1, s);
+    ctx.fillStyle = CONFIG.COLOR.PLAYER1_TURRET;
+    ctx.fillRect(x + Math.floor(s / 2) - 1, y, 2, Math.floor(s / 2));
+  } else {
+    ctx.fillStyle = CONFIG.COLOR.PLAYER2_BODY;
+    ctx.fillRect(x + 1, y + 1, s - 2, s - 2);
+    ctx.fillStyle = CONFIG.COLOR.PLAYER2_TRACK;
+    ctx.fillRect(x, y, 1, s);
+    ctx.fillRect(x + s - 1, y, 1, s);
+    ctx.fillStyle = CONFIG.COLOR.PLAYER2_TURRET;
+    ctx.fillRect(x + Math.floor(s / 2) - 1, y, 2, Math.floor(s / 2));
+  }
 };
 
 module.exports = HUD;
