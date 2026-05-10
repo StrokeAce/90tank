@@ -223,6 +223,18 @@ Tank.prototype.fire = function() {
 Tank.prototype.takeDamage = function(damage) {
   if (this.shielded || this.spawning) return false;
 
+  if (this.isPlayer) {
+    if (this.starLevel <= 0) {
+      this.alive = false;
+      return true;
+    } else {
+      this.starLevel--;
+      this._applyUpgrade();
+      this.flashTimer = CONFIG.GAME.ARMOR_FLASH_DURATION;
+      return false;
+    }
+  }
+
   var dmg = damage || 1;
   this.hp -= dmg;
   if (this.hp <= 0) {

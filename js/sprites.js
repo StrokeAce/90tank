@@ -115,102 +115,204 @@ var Sprites = {
     return this._createSprite(s, s, function(ctx, w, h) {
       var treadOffset = frame % 2;
 
-      if (direction === 0) {
-        ctx.fillStyle = trackColor;
-        ctx.fillRect(0, 0, 3, s);
-        ctx.fillRect(s - 3, 0, 3, s);
-        for (var i = 0; i < s; i += 2) {
-          ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
-          ctx.fillRect(0, i, 3, 1);
-          ctx.fillRect(s - 3, i, 3, 1);
-        }
-        ctx.fillStyle = bodyColor;
-        ctx.fillRect(3, 2, s - 6, s - 4);
-        if (starLevel >= 1) {
-          ctx.fillStyle = highlightColor;
-          ctx.fillRect(4, 3, s - 8, 1);
-          ctx.fillRect(4, s - 4, s - 8, 1);
-        }
-        if (starLevel >= 2) {
+      if (isEnemy) {
+        if (direction === 0) {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, 3, s);
+          ctx.fillRect(s - 3, 0, 3, s);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(0, i, 3, 1);
+            ctx.fillRect(s - 3, i, 3, 1);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(3, 2, s - 6, s - 4);
           ctx.fillStyle = turretColor;
-          ctx.fillRect(5, 4, s - 10, s - 8);
-        }
-        ctx.fillStyle = turretColor;
-        ctx.fillRect(Math.floor(s / 2) - 2, 0, 4, Math.floor(s / 2) + 2);
-        ctx.fillStyle = highlightColor;
-        ctx.fillRect(Math.floor(s / 2) - 1, 1, 2, 2);
-      } else if (direction === 2) {
-        ctx.fillStyle = trackColor;
-        ctx.fillRect(0, 0, 3, s);
-        ctx.fillRect(s - 3, 0, 3, s);
-        for (var i = 0; i < s; i += 2) {
-          ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
-          ctx.fillRect(0, i, 3, 1);
-          ctx.fillRect(s - 3, i, 3, 1);
-        }
-        ctx.fillStyle = bodyColor;
-        ctx.fillRect(3, 2, s - 6, s - 4);
-        if (starLevel >= 1) {
-          ctx.fillStyle = highlightColor;
-          ctx.fillRect(4, 3, s - 8, 1);
-          ctx.fillRect(4, s - 4, s - 8, 1);
-        }
-        if (starLevel >= 2) {
+          ctx.fillRect(Math.floor(s / 2) - 2, 0, 4, Math.floor(s / 2) + 2);
+          ctx.fillStyle = highlightColor || turretColor;
+          ctx.fillRect(Math.floor(s / 2) - 1, 1, 2, 2);
+        } else if (direction === 2) {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, 3, s);
+          ctx.fillRect(s - 3, 0, 3, s);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(0, i, 3, 1);
+            ctx.fillRect(s - 3, i, 3, 1);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(3, 2, s - 6, s - 4);
           ctx.fillStyle = turretColor;
-          ctx.fillRect(5, 4, s - 10, s - 8);
-        }
-        ctx.fillStyle = turretColor;
-        ctx.fillRect(Math.floor(s / 2) - 2, Math.floor(s / 2) - 2, 4, Math.floor(s / 2) + 2);
-        ctx.fillStyle = highlightColor;
-        ctx.fillRect(Math.floor(s / 2) - 1, s - 3, 2, 2);
-      } else if (direction === 1) {
-        ctx.fillStyle = trackColor;
-        ctx.fillRect(0, 0, s, 3);
-        ctx.fillRect(0, s - 3, s, 3);
-        for (var i = 0; i < s; i += 2) {
-          ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
-          ctx.fillRect(i, 0, 1, 3);
-          ctx.fillRect(i, s - 3, 1, 3);
-        }
-        ctx.fillStyle = bodyColor;
-        ctx.fillRect(2, 3, s - 4, s - 6);
-        if (starLevel >= 1) {
-          ctx.fillStyle = highlightColor;
-          ctx.fillRect(3, 4, 1, s - 8);
-          ctx.fillRect(s - 4, 4, 1, s - 8);
-        }
-        if (starLevel >= 2) {
+          ctx.fillRect(Math.floor(s / 2) - 2, Math.floor(s / 2) - 2, 4, Math.floor(s / 2) + 2);
+          ctx.fillStyle = highlightColor || turretColor;
+          ctx.fillRect(Math.floor(s / 2) - 1, s - 3, 2, 2);
+        } else if (direction === 1) {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, s, 3);
+          ctx.fillRect(0, s - 3, s, 3);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(i, 0, 1, 3);
+            ctx.fillRect(i, s - 3, 1, 3);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(2, 3, s - 4, s - 6);
           ctx.fillStyle = turretColor;
-          ctx.fillRect(4, 5, s - 8, s - 10);
+          ctx.fillRect(Math.floor(s / 2) - 2, Math.floor(s / 2) - 2, Math.floor(s / 2) + 2, 4);
+          ctx.fillStyle = highlightColor || turretColor;
+          ctx.fillRect(s - 3, Math.floor(s / 2) - 1, 2, 2);
+        } else {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, s, 3);
+          ctx.fillRect(0, s - 3, s, 3);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(i, 0, 1, 3);
+            ctx.fillRect(i, s - 3, 1, 3);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(2, 3, s - 4, s - 6);
+          ctx.fillStyle = turretColor;
+          ctx.fillRect(0, Math.floor(s / 2) - 2, Math.floor(s / 2) + 2, 4);
+          ctx.fillStyle = highlightColor || turretColor;
+          ctx.fillRect(1, Math.floor(s / 2) - 1, 2, 2);
         }
-        ctx.fillStyle = turretColor;
-        ctx.fillRect(Math.floor(s / 2) - 2, Math.floor(s / 2) - 2, Math.floor(s / 2) + 2, 4);
-        ctx.fillStyle = highlightColor;
-        ctx.fillRect(s - 3, Math.floor(s / 2) - 1, 2, 2);
       } else {
-        ctx.fillStyle = trackColor;
-        ctx.fillRect(0, 0, s, 3);
-        ctx.fillRect(0, s - 3, s, 3);
-        for (var i = 0; i < s; i += 2) {
-          ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
-          ctx.fillRect(i, 0, 1, 3);
-          ctx.fillRect(i, s - 3, 1, 3);
-        }
-        ctx.fillStyle = bodyColor;
-        ctx.fillRect(2, 3, s - 4, s - 6);
-        if (starLevel >= 1) {
-          ctx.fillStyle = highlightColor;
-          ctx.fillRect(3, 4, 1, s - 8);
-          ctx.fillRect(s - 4, 4, 1, s - 8);
-        }
-        if (starLevel >= 2) {
+        var redColor = '#FF0000';
+        
+        if (direction === 0) {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, 3, s);
+          ctx.fillRect(s - 3, 0, 3, s);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(0, i, 3, 1);
+            ctx.fillRect(s - 3, i, 3, 1);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(3, 2, s - 6, s - 4);
           ctx.fillStyle = turretColor;
-          ctx.fillRect(4, 5, s - 8, s - 10);
+          ctx.fillRect(Math.floor(s / 2) - 2, 0, 4, Math.floor(s / 2) + 2);
+          
+          if (starLevel === 0) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(Math.floor(s / 2) - 1, 1, 2, 2);
+          } else if (starLevel === 1) {
+            ctx.fillStyle = turretColor;
+            ctx.fillRect(7, -4, 2, 7);
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(7, -3, 2, 3);
+          } else if (starLevel === 2) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(7, 0, 2, 5);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(7, -5, 2, 5);
+          } else {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(6, 0, 4, 5);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(6, -5, 4, 5);
+          }
+        } else if (direction === 2) {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, 3, s);
+          ctx.fillRect(s - 3, 0, 3, s);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(0, i, 3, 1);
+            ctx.fillRect(s - 3, i, 3, 1);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(3, 2, s - 6, s - 4);
+          ctx.fillStyle = turretColor;
+          ctx.fillRect(Math.floor(s / 2) - 2, Math.floor(s / 2) - 2, 4, Math.floor(s / 2) + 2);
+          
+          if (starLevel === 0) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(Math.floor(s / 2) - 1, s - 3, 2, 2);
+          } else if (starLevel === 1) {
+            ctx.fillStyle = turretColor;
+            ctx.fillRect(7, 13, 2, 7);
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(7, 14, 2, 3);
+          } else if (starLevel === 2) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(7, 11, 2, 5);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(7, 16, 2, 5);
+          } else {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(6, 11, 4, 5);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(6, 16, 4, 5);
+          }
+        } else if (direction === 1) {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, s, 3);
+          ctx.fillRect(0, s - 3, s, 3);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(i, 0, 1, 3);
+            ctx.fillRect(i, s - 3, 1, 3);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(2, 3, s - 4, s - 6);
+          ctx.fillStyle = turretColor;
+          ctx.fillRect(Math.floor(s / 2) - 2, Math.floor(s / 2) - 2, Math.floor(s / 2) + 2, 4);
+          
+          if (starLevel === 0) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(s - 3, Math.floor(s / 2) - 1, 2, 2);
+          } else if (starLevel === 1) {
+            ctx.fillStyle = turretColor;
+            ctx.fillRect(13, 7, 7, 2);
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(14, 7, 3, 2);
+          } else if (starLevel === 2) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(11, 7, 5, 2);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(16, 7, 5, 2);
+          } else {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(11, 6, 5, 4);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(16, 6, 5, 4);
+          }
+        } else {
+          ctx.fillStyle = trackColor;
+          ctx.fillRect(0, 0, s, 3);
+          ctx.fillRect(0, s - 3, s, 3);
+          for (var i = 0; i < s; i += 2) {
+            ctx.fillStyle = (i + treadOffset) % 4 < 2 ? trackColor : bodyColor;
+            ctx.fillRect(i, 0, 1, 3);
+            ctx.fillRect(i, s - 3, 1, 3);
+          }
+          ctx.fillStyle = bodyColor;
+          ctx.fillRect(2, 3, s - 4, s - 6);
+          ctx.fillStyle = turretColor;
+          ctx.fillRect(0, Math.floor(s / 2) - 2, Math.floor(s / 2) + 2, 4);
+          
+          if (starLevel === 0) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(1, Math.floor(s / 2) - 1, 2, 2);
+          } else if (starLevel === 1) {
+            ctx.fillStyle = turretColor;
+            ctx.fillRect(-4, 7, 7, 2);
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(-3, 7, 3, 2);
+          } else if (starLevel === 2) {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(-2, 7, 5, 2);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(-7, 7, 5, 2);
+          } else {
+            ctx.fillStyle = highlightColor;
+            ctx.fillRect(-2, 6, 5, 4);
+            ctx.fillStyle = redColor;
+            ctx.fillRect(-7, 6, 5, 4);
+          }
         }
-        ctx.fillStyle = turretColor;
-        ctx.fillRect(0, Math.floor(s / 2) - 2, Math.floor(s / 2) + 2, 4);
-        ctx.fillStyle = highlightColor;
-        ctx.fillRect(1, Math.floor(s / 2) - 1, 2, 2);
       }
 
       if (isEnemy && highlightColor) {
