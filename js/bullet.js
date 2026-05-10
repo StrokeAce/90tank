@@ -36,7 +36,6 @@ Bullet.prototype.update = function(dt) {
   var mapH = CONFIG.TILE.MAP_HEIGHT_SCALED;
   if (this.x < 0 || this.y < 0 || this.x + this.width > mapW || this.y + this.height > mapH) {
     this.alive = false;
-    Audio.playHit();
   }
 };
 

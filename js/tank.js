@@ -53,6 +53,8 @@ function Tank(x, y, direction, isPlayer, playerIndex) {
 
   this.flashTimer = 0;
   this.flashOn = false;
+
+  this.moveSoundTimer = 0;
 }
 
 Tank.prototype = Object.create(Entity.prototype);
@@ -88,6 +90,10 @@ Tank.prototype.update = function(dt) {
   this._updateBullets(dt);
 
   this.fireTimer = Math.max(0, this.fireTimer - dt * 1000);
+
+  if (this.moveSoundTimer > 0) {
+    this.moveSoundTimer -= dt * 1000;
+  }
 
   if (this.moving) {
     this.animTimer += dt * 1000;
@@ -152,10 +158,18 @@ Tank.prototype.move = function(direction, map) {
     if (!collision) {
       this.x = newX;
       this.y = newY;
+      if (this.isPlayer && this.moveSoundTimer <= 0) {
+        Audio.playMove();
+        this.moveSoundTimer = 120;
+      }
     }
   } else {
     this.x = newX;
     this.y = newY;
+    if (this.isPlayer && this.moveSoundTimer <= 0) {
+      Audio.playMove();
+      this.moveSoundTimer = 120;
+    }
   }
 };
 
@@ -192,7 +206,9 @@ Tank.prototype.fire = function() {
 
   var bullet = new Bullet(bx, by, this.direction, this.bulletSpeed, this, this.canPierceSteel);
   this.bullets.push(bullet);
-  Audio.playShoot();
+  if (this.isPlayer) {
+    Audio.playShoot();
+  }
   return bullet;
 };
 

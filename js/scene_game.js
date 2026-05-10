@@ -85,6 +85,8 @@ GameScene.prototype.enter = function(data) {
   this.input.setPauseCallback(this._onPause.bind(this));
   this.input.setPauseMenuCallback(this._onPauseMenuClick.bind(this));
 
+  Audio.init();
+
   this._loadStage();
 };
 
@@ -255,7 +257,6 @@ GameScene.prototype._spawnEnemy = function() {
   this.enemyAIs.push(ai);
 
   this.enemiesSpawned++;
-  Audio.playSpawn();
 };
 
 GameScene.prototype._getAlivePlayerTanks = function() {
@@ -497,8 +498,12 @@ GameScene.prototype._updateBullets = function(dt) {
         }
         if (mapResult.destroyed || mapResult.bounced) {
           self.explosions.push(new Explosion(bullet.centerX(), bullet.centerY(), false));
-          if (mapResult.bounced) {
-            Audio.playSteelHit();
+          if (bullet.owner && bullet.owner.isPlayer) {
+            if (mapResult.destroyed) {
+              Audio.playBrickHit();
+            } else if (mapResult.bounced) {
+              Audio.playSteelHit();
+            }
           }
         } else {
           self.explosions.push(new Explosion(bullet.centerX(), bullet.centerY(), false));
@@ -538,7 +543,11 @@ GameScene.prototype._checkBulletTankCollisions = function() {
           var destroyed = target.takeDamage();
           if (destroyed) {
             self.explosions.push(new Explosion(target.centerX(), target.centerY(), true, function() {
-              Audio.playBigExplosion();
+              if (target.isPlayer) {
+                Audio.playPlayerBoom();
+              } else {
+                Audio.playEnemyBoom();
+              }
             }));
             if (!target.isPlayer) {
               var enemyType = target.enemyType || 0;
@@ -551,7 +560,9 @@ GameScene.prototype._checkBulletTankCollisions = function() {
               }
             }
           } else {
-            Audio.playHit();
+            if (shooter.isPlayer) {
+              Audio.playHit();
+            }
           }
           break;
         }
@@ -626,7 +637,7 @@ GameScene.prototype._applyPowerUp = function(result, player) {
           this.explosions.push(new Explosion(this.enemies[i].centerX(), this.enemies[i].centerY(), true));
         }
       }
-      Audio.playBigExplosion();
+      Audio.playEnemyBoom();
       break;
     case 'shield':
       player.setShield(result.duration);
@@ -641,6 +652,7 @@ GameScene.prototype._applyPowerUp = function(result, player) {
       } else {
         this.player2Lives++;
       }
+      Audio.playMoreLife();
       break;
     case 'upgrade':
       player.upgrade();
@@ -731,6 +743,9 @@ GameScene.prototype._triggerGameOver = function() {
 
 GameScene.prototype._onPause = function(paused) {
   this.paused = paused;
+  if (paused) {
+    Audio.playPause();
+  }
 };
 
 GameScene.prototype._onPauseMenuClick = function(tx, ty) {
