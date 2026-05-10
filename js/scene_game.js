@@ -56,6 +56,9 @@ function GameScene(renderer, sceneManager) {
 
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
+  
+  this.powerupTypes = [0, 1, 2, 3, 4, 5];
+  this.currentPowerupIndex = 0;
 }
 
 GameScene.prototype.enter = function(data) {
@@ -114,6 +117,9 @@ GameScene.prototype._loadStage = function() {
   this.baseSteelTimer = 0;
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
+  
+  this.powerupTypes = [0, 1, 2, 3, 4, 5];
+  this.currentPowerupIndex = 0;
 
   this._spawnPlayer1();
 
@@ -283,6 +289,7 @@ GameScene.prototype.update = function(dt) {
     this.stageIntroTimer += dt * 1000;
     if (this.stageIntroTimer >= CONFIG.GAME.STAGE_INTRO_DURATION) {
       this.stageIntro = false;
+      this._spawnNextPowerup();
     }
     return;
   }
@@ -550,15 +557,10 @@ GameScene.prototype._checkBulletTankCollisions = function() {
               }
             }));
             if (!target.isPlayer) {
-              var enemyType = target.enemyType || 0;
-              var scoreValues = [100, 200, 300, 400];
-              self.score += scoreValues[enemyType] || 100;
-              self.powerupEnemyCounter++;
-              if (self.powerupEnemyCounter >= CONFIG.GAME.POWERUP_SPAWN_ENEMY_COUNT && !self.activePowerup) {
-                self._spawnPowerup();
-                self.powerupEnemyCounter = 0;
+                var enemyType = target.enemyType || 0;
+                var scoreValues = [100, 200, 300, 400];
+                self.score += scoreValues[enemyType] || 100;
               }
-            }
           } else {
             if (shooter.isPlayer) {
               if (target.enemyType === CONFIG.ENEMY_TYPE.ARMOR.ID) {
@@ -627,6 +629,20 @@ GameScene.prototype._spawnPowerup = function() {
   this.activePowerup = powerup;
 };
 
+GameScene.prototype._spawnNextPowerup = function() {
+  if (this.currentPowerupIndex >= this.powerupTypes.length) {
+    return;
+  }
+  
+  var px = Utils.randomInt(1, 22) * CONFIG.TILE.CELL_SIZE_SCALED;
+  var py = Utils.randomInt(1, 20) * CONFIG.TILE.CELL_SIZE_SCALED;
+  var type = this.powerupTypes[this.currentPowerupIndex];
+  var powerup = new PowerUp(px, py, type);
+  this.powerups.push(powerup);
+  this.activePowerup = powerup;
+  this.currentPowerupIndex++;
+};
+
 GameScene.prototype._applyPowerUp = function(result, player) {
   switch (result.effect) {
     case 'freeze':
@@ -660,6 +676,8 @@ GameScene.prototype._applyPowerUp = function(result, player) {
       player.upgrade();
       break;
   }
+  
+  this._spawnNextPowerup();
 };
 
 GameScene.prototype._updateExplosions = function(dt) {
