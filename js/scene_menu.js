@@ -7,7 +7,7 @@ function MenuScene(renderer, sceneManager) {
   this.renderer = renderer;
   this.sceneManager = sceneManager;
   this.selectedOption = 0;
-  this.options = ['1 PLAYER', '2 PLAYERS', 'CONSTRUCTION'];
+  this.options = ['1 PLAYER', '2 PLAYERS'];
   this.blinkTimer = 0;
   this.blinkOn = true;
   this.titleY = 80;
@@ -85,8 +85,6 @@ MenuScene.prototype._confirmSelection = function() {
     case 1:
       this.sceneManager.changeScene('stageSelect', { twoPlayer: true });
       break;
-    case 2:
-      break;
   }
 };
 
@@ -121,11 +119,11 @@ MenuScene.prototype.render = function() {
 
   ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
   ctx.font = '10px monospace';
-  ctx.fillText('最高分: ' + Utils.formatScore(Storage.getHighScore()), centerX, 280);
+  ctx.fillText('最高分: ' + Utils.formatScore(Storage.getHighScore()), centerX, 230);
 
   ctx.fillStyle = '#7C7C7C';
   ctx.font = '8px monospace';
-  ctx.fillText('触摸选择', centerX, 300);
+  ctx.fillText('触摸选择', centerX, 250);
   ctx.restore();
 };
 
