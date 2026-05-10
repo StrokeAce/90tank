@@ -27,8 +27,6 @@ function Tank(x, y, direction, isPlayer, playerIndex) {
   this.shieldFrame = 0;
   this.shieldFrameTimer = 0;
   
-  this.gunEnabled = false;
-  this.gunTimer = 0;
   this.canPierceSteel = false;
   this.canPierceForest = false;
   this.canPierceWater = false;
@@ -87,14 +85,7 @@ Tank.prototype.update = function(dt) {
     }
   }
   
-  if (this.gunEnabled) {
-    this.gunTimer -= dt * 1000;
-    this.canPierceSteel = true;
-    if (this.gunTimer <= 0) {
-      this.gunEnabled = false;
-      this.canPierceSteel = false;
-    }
-  }
+
 
   if (this.flashTimer > 0) {
     this.flashTimer -= dt * 1000;
@@ -249,8 +240,7 @@ Tank.prototype.setShield = function(duration) {
 };
 
 Tank.prototype.setGun = function(duration) {
-  this.gunEnabled = true;
-  this.gunTimer = duration;
+  this.canPierceSteel = true;
 };
 
 Tank.prototype.upgrade = function(amount) {
