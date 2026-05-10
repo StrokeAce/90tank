@@ -26,16 +26,19 @@ HUD.prototype.update = function(data) {
 };
 
 HUD.prototype.render = function(ctx) {
-  // HUD暂时禁用，因为地图现在铺满屏幕
-  // this._renderEnemyIcons(ctx);
-  // this._renderPlayerInfo(ctx);
-  // this._renderStageInfo(ctx);
+  this._renderEnemyIcons(ctx);
 };
 
 HUD.prototype._renderEnemyIcons = function(ctx) {
-  var startX = CONFIG.TILE.MAP_OFFSET_X + CONFIG.TILE.MAP_WIDTH_SCALED + 8;
-  var startY = CONFIG.TILE.MAP_OFFSET_Y;
-  var iconSize = 6;
+  if (this.enemyCount <= 0) return;
+
+  var mapRight = CONFIG.TILE.MAP_OFFSET_X + CONFIG.TILE.MAP_WIDTH_SCALED;
+  var mapTop = CONFIG.TILE.MAP_OFFSET_Y;
+  var borderW = CONFIG.TILE.BORDER_WIDTH;
+
+  var startX = mapRight + borderW + 4;
+  var startY = mapTop - borderW;
+  var iconSize = 8;
   var padding = 2;
   var cols = 2;
 
@@ -45,8 +48,19 @@ HUD.prototype._renderEnemyIcons = function(ctx) {
     var row = Math.floor(i / cols);
     var x = startX + col * (iconSize + padding);
     var y = startY + row * (iconSize + padding);
-    ctx.fillRect(x, y, iconSize, iconSize);
+    this._drawMiniTank(ctx, x, y, iconSize);
   }
+};
+
+HUD.prototype._drawMiniTank = function(ctx, x, y, size) {
+  var s = size;
+  ctx.fillStyle = CONFIG.COLOR.ENEMY_BASIC_BODY;
+  ctx.fillRect(x + 1, y + 1, s - 2, s - 2);
+  ctx.fillStyle = CONFIG.COLOR.ENEMY_BASIC_TRACK;
+  ctx.fillRect(x, y, 1, s);
+  ctx.fillRect(x + s - 1, y, 1, s);
+  ctx.fillStyle = CONFIG.COLOR.ENEMY_BASIC_TURRET;
+  ctx.fillRect(x + Math.floor(s / 2) - 1, y, 2, Math.floor(s / 2));
 };
 
 HUD.prototype._renderPlayerInfo = function(ctx) {
