@@ -26,6 +26,10 @@ function Tank(x, y, direction, isPlayer, playerIndex) {
   this.shieldTimer = 0;
   this.shieldFrame = 0;
   this.shieldFrameTimer = 0;
+  
+  this.gunEnabled = false;
+  this.gunTimer = 0;
+  this.canPierceSteel = false;
 
   this.spawning = true;
   this.spawnTimer = 0;
@@ -77,6 +81,15 @@ Tank.prototype.update = function(dt) {
     }
     if (this.shieldTimer <= 0) {
       this.shielded = false;
+    }
+  }
+  
+  if (this.gunEnabled) {
+    this.gunTimer -= dt * 1000;
+    this.canPierceSteel = true;
+    if (this.gunTimer <= 0) {
+      this.gunEnabled = false;
+      this.canPierceSteel = false;
     }
   }
 
@@ -228,6 +241,11 @@ Tank.prototype.takeDamage = function() {
 Tank.prototype.setShield = function(duration) {
   this.shielded = true;
   this.shieldTimer = duration;
+};
+
+Tank.prototype.setGun = function(duration) {
+  this.gunEnabled = true;
+  this.gunTimer = duration;
 };
 
 Tank.prototype.upgrade = function() {

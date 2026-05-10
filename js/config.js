@@ -165,6 +165,12 @@ var CONFIG = {
       NAME: 'star',
       DURATION: 0,
       DESCRIPTION: 'upgrade player tank'
+    },
+    GUN: {
+      ID: 6,
+      NAME: 'gun',
+      DURATION: 15000,
+      DESCRIPTION: 'can destroy steel walls'
     }
   },
 

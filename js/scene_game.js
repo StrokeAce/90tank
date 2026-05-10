@@ -57,7 +57,7 @@ function GameScene(renderer, sceneManager) {
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
   
-  this.powerupTypes = [0, 1, 2, 3, 4, 5];
+  this.powerupTypes = [0, 1, 2, 3, 4, 5, 6];
   this.currentPowerupIndex = 0;
 }
 
@@ -118,7 +118,7 @@ GameScene.prototype._loadStage = function() {
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
   
-  this.powerupTypes = [0, 1, 2, 3, 4, 5];
+  this.powerupTypes = [0, 1, 2, 3, 4, 5, 6];
   this.currentPowerupIndex = 0;
 
   this._spawnPlayer1();
@@ -634,13 +634,62 @@ GameScene.prototype._spawnNextPowerup = function() {
     return;
   }
   
-  var px = Utils.randomInt(1, 22) * CONFIG.TILE.CELL_SIZE_SCALED;
-  var py = Utils.randomInt(1, 20) * CONFIG.TILE.CELL_SIZE_SCALED;
   var type = this.powerupTypes[this.currentPowerupIndex];
-  var powerup = new PowerUp(px, py, type);
-  this.powerups.push(powerup);
-  this.activePowerup = powerup;
-  this.currentPowerupIndex++;
+  var powerup = null;
+  var maxAttempts = 100;
+  var attempts = 0;
+  
+  while (!powerup && attempts < maxAttempts) {
+    var col = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_COLS - 2);
+    var row = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_ROWS - 2);
+    var px = col * CONFIG.TILE.CELL_SIZE_SCALED * 2;
+    var py = row * CONFIG.TILE.CELL_SIZE_SCALED * 2;
+    
+    if (this._isValidPowerupPosition(px, py)) {
+      powerup = new PowerUp(px, py, type);
+    }
+    attempts++;
+  }
+  
+  if (powerup) {
+    this.powerups.push(powerup);
+    this.activePowerup = powerup;
+    this.currentPowerupIndex++;
+  }
+};
+
+GameScene.prototype._isValidPowerupPosition = function(x, y) {
+  var tileCol = Math.floor(x / CONFIG.TILE.CELL_SIZE_SCALED);
+  var tileRow = Math.floor(y / CONFIG.TILE.CELL_SIZE_SCALED);
+  
+  for (var dr = 0; dr < 2; dr++) {
+    for (var dc = 0; dc < 2; dc++) {
+      var checkRow = tileRow + dr;
+      var checkCol = tileCol + dc;
+      
+      if (checkRow >= 0 && checkRow < this.gameMap.rows && 
+          checkCol >= 0 && checkCol < this.gameMap.cols) {
+        var tileType = this.gameMap.terrain[checkRow][checkCol];
+        if (tileType !== CONFIG.TILE_TYPE.EMPTY) {
+          return false;
+        }
+      }
+    }
+  }
+  
+  for (var i = 0; i < this.enemies.length; i++) {
+    if (this.enemies[i].alive && this.enemies[i].collidesWith(x, y, CONFIG.TANK.SIZE_SCALED, CONFIG.TANK.SIZE_SCALED)) {
+      return false;
+    }
+  }
+  
+  for (var i = 0; i < this.powerups.length; i++) {
+    if (this.powerups[i].alive && this.powerups[i].collidesWith(x, y, CONFIG.TANK.SIZE_SCALED, CONFIG.TANK.SIZE_SCALED)) {
+      return false;
+    }
+  }
+  
+  return true;
 };
 
 GameScene.prototype._applyPowerUp = function(result, player) {
@@ -674,6 +723,9 @@ GameScene.prototype._applyPowerUp = function(result, player) {
       break;
     case 'upgrade':
       player.upgrade();
+      break;
+    case 'gun':
+      player.setGun(result.duration);
       break;
   }
   

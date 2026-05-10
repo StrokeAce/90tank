@@ -84,8 +84,15 @@ Page({
       })
   },
 
-  startGame: function () {
+  startGame: async function () {
     try {
+      PowerUp.setCanvas(this.canvas);
+      
+      console.log('等待道具图标加载...');
+      await PowerUp.loadPowerupIcons().catch(function() {
+        console.log('部分道具图标加载失败，将使用默认图标');
+      });
+      
       this.renderer = new Renderer()
       this.renderer.init(this.canvas)
 
