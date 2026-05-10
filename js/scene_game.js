@@ -141,6 +141,8 @@ GameScene.prototype._spawnPlayer1 = function() {
   this.player1.maxBullets = CONFIG.TANK.PLAYER_BULLET_COUNTS[0];
   this.player1.fireRate = CONFIG.TANK.PLAYER_FIRE_RATES[0] * (1000 / 60);
   this.player1.setShield(CONFIG.GAME.SPAWN_PROTECTION_TIME);
+
+  this._pushAwayEnemiesFromSpawn(this.player1);
 };
 
 GameScene.prototype._spawnPlayer2 = function() {
@@ -154,6 +156,64 @@ GameScene.prototype._spawnPlayer2 = function() {
   this.player2.maxBullets = CONFIG.TANK.PLAYER_BULLET_COUNTS[0];
   this.player2.fireRate = CONFIG.TANK.PLAYER_FIRE_RATES[0] * (1000 / 60);
   this.player2.setShield(CONFIG.GAME.SPAWN_PROTECTION_TIME);
+
+  this._pushAwayEnemiesFromSpawn(this.player2);
+};
+
+GameScene.prototype._pushAwayEnemiesFromSpawn = function(playerTank) {
+  if (!playerTank) return;
+
+  var tankSize = CONFIG.TANK.SIZE_SCALED;
+  var mapW = CONFIG.TILE.MAP_WIDTH_SCALED;
+  var mapH = CONFIG.TILE.MAP_HEIGHT_SCALED;
+
+  for (var i = 0; i < this.enemies.length; i++) {
+    var enemy = this.enemies[i];
+    if (!enemy.alive || enemy.spawning) continue;
+
+    if (Utils.rectOverlap(
+      playerTank.x, playerTank.y, playerTank.width, playerTank.height,
+      enemy.x, enemy.y, enemy.width, enemy.height
+    )) {
+      var directions = [
+        { dx: -tankSize, dy: 0 },
+        { dx: tankSize, dy: 0 },
+        { dx: 0, dy: -tankSize },
+        { dx: 0, dy: tankSize },
+        { dx: -tankSize, dy: -tankSize },
+        { dx: tankSize, dy: -tankSize },
+        { dx: -tankSize, dy: tankSize },
+        { dx: tankSize, dy: tankSize }
+      ];
+
+      for (var d = 0; d < directions.length; d++) {
+        var dir = directions[d];
+        var newX = enemy.x + dir.dx;
+        var newY = enemy.y + dir.dy;
+
+        newX = Utils.clamp(newX, 0, mapW - enemy.width);
+        newY = Utils.clamp(newY, 0, mapH - enemy.height);
+
+        var collisionWithOthers = false;
+        for (var j = 0; j < this.enemies.length; j++) {
+          if (i === j) continue;
+          var other = this.enemies[j];
+          if (!other.alive || other.spawning) continue;
+          if (Utils.rectOverlap(newX, newY, enemy.width, enemy.height,
+                                other.x, other.y, other.width, other.height)) {
+            collisionWithOthers = true;
+            break;
+          }
+        }
+
+        if (!collisionWithOthers) {
+          enemy.x = newX;
+          enemy.y = newY;
+          break;
+        }
+      }
+    }
+  }
 };
 
 GameScene.prototype._spawnEnemy = function() {
