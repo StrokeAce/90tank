@@ -1,6 +1,7 @@
 var CONFIG = require('./config');
 var Utils = require('./utils');
 var Storage = require('./storage');
+var Audio = require('./audio');
 
 function StageSelectScene(renderer, sceneManager) {
   this.renderer = renderer;

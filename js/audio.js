@@ -6,6 +6,7 @@ var Audio = {
   _muted: false,
   _bgmPlaying: false,
   _bgmAudio: null,
+  _startBgmAudio: null,
   _sounds: {},
   _initialized: false,
 
@@ -16,24 +17,26 @@ var Audio = {
     this._bgmVolume = 0.5;
     this._loadSounds();
     this._initBGM();
+    this._initStartBGM();
   },
 
   _loadSounds: function() {
     var soundFiles = {
       shoot: '/audio/shoot.mp3',
-      explosion: '/audio/explosion.wav',
-      bigExplosion: '/audio/big_explosion.wav',
-      powerup: '/audio/powerup.wav',
-      hit: '/audio/hit.wav',
-      steelHit: '/audio/steel_hit.wav',
-      brickHit: '/audio/brick_hit.wav',
-      spawn: '/audio/spawn.wav',
       move: '/audio/move.mp3',
+      playerMove: '/audio/player_move.mp3',
+      playerShoot: '/audio/player_shoot.mp3',
       pause: '/audio/pause.mp3',
       enemyBoom: '/audio/enemy_boom.mp3',
       playerBoom: '/audio/player_boom.mp3',
       gameOver: '/audio/game_over.mp3',
-      moreLife: '/audio/more_life.mp3'
+      moreLife: '/audio/more_life.mp3',
+      enemyMove: '/audio/enemy_move.mp3',
+      hitSteel: '/audio/hit_steel.mp3',
+      hitSteelEnemy: '/audio/hit_steel_enemy.mp3',
+      hitBrick: '/audio/hit_brick.mp3',
+      menu: '/audio/menu.mp3',
+      propBoom: '/audio/prop_boom.mp3'
     };
 
     for (var name in soundFiles) {
@@ -51,11 +54,22 @@ var Audio = {
   _initBGM: function() {
     try {
       this._bgmAudio = wx.createInnerAudioContext();
-      this._bgmAudio.src = '/audio/start_background.mp3';
+      this._bgmAudio.src = '/audio/background.mp3';
       this._bgmAudio.volume = this._bgmVolume;
       this._bgmAudio.loop = false;
     } catch (e) {
       console.warn('Failed to init BGM:', e);
+    }
+  },
+
+  _initStartBGM: function() {
+    try {
+      this._startBgmAudio = wx.createInnerAudioContext();
+      this._startBgmAudio.src = '/audio/start_background.mp3';
+      this._startBgmAudio.volume = this._bgmVolume;
+      this._startBgmAudio.loop = false;
+    } catch (e) {
+      console.warn('Failed to init Start BGM:', e);
     }
   },
 
@@ -78,36 +92,16 @@ var Audio = {
     this._playSound('shoot', 1.0);
   },
 
-  playExplosion: function() {
-    this._playSound('explosion', 0.4);
-  },
-
-  playBigExplosion: function() {
-    this._playSound('bigExplosion', 0.6);
-  },
-
-  playPowerup: function() {
-    this._playSound('powerup', 1.0);
-  },
-
-  playHit: function() {
-    this._playSound('hit', 1.0);
-  },
-
-  playSteelHit: function() {
-    this._playSound('steelHit', 0.9);
-  },
-
-  playBrickHit: function() {
-    this._playSound('brickHit', 0.9);
-  },
-
-  playSpawn: function() {
-    this._playSound('spawn', 0.9);
+  playPlayerShoot: function() {
+    this._playSound('playerShoot', 1.0);
   },
 
   playMove: function() {
     this._playSound('move', 1.0);
+  },
+
+  playPlayerMove: function() {
+    this._playSound('playerMove', 1.0);
   },
 
   playPause: function() {
@@ -128,6 +122,30 @@ var Audio = {
 
   playMoreLife: function() {
     this._playSound('moreLife', 1.0);
+  },
+
+  playEnemyMove: function() {
+    this._playSound('enemyMove', 0.1);
+  },
+
+  playHitSteel: function() {
+    this._playSound('hitSteel', 0.9);
+  },
+
+  playHitSteelEnemy: function() {
+    this._playSound('hitSteelEnemy', 0.9);
+  },
+
+  playHitBrick: function() {
+    this._playSound('hitBrick', 0.9);
+  },
+
+  playMenu: function() {
+    this._playSound('menu', 1.0);
+  },
+
+  playPropBoom: function() {
+    this._playSound('propBoom', 1.0);
   },
 
   playLevelComplete: function() {
@@ -212,6 +230,26 @@ var Audio = {
       try {
         this._bgmAudio.pause();
         this._bgmAudio.seek(0);
+      } catch (e) {}
+    }
+  },
+
+  playStartBGM: function() {
+    if (!this._startBgmAudio) return;
+    try {
+      this._startBgmAudio.stop();
+      this._startBgmAudio.volume = this._bgmVolume;
+      this._startBgmAudio.play();
+    } catch (e) {
+      console.warn('Error playing Start BGM:', e);
+    }
+  },
+
+  stopStartBGM: function() {
+    if (this._startBgmAudio) {
+      try {
+        this._startBgmAudio.stop();
+        this._startBgmAudio.seek(0);
       } catch (e) {}
     }
   },

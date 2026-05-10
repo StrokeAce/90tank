@@ -86,6 +86,8 @@ GameScene.prototype.enter = function(data) {
   this.input.setPauseMenuCallback(this._onPauseMenuClick.bind(this));
 
   Audio.init();
+  Audio.stopBGM();
+  Audio.playStartBGM();
 
   this._loadStage();
 };
@@ -128,8 +130,6 @@ GameScene.prototype._loadStage = function() {
     lives: this.lives,
     score: this.score
   });
-
-  Audio.startBGM();
 };
 
 GameScene.prototype._spawnPlayer1 = function() {
@@ -500,9 +500,9 @@ GameScene.prototype._updateBullets = function(dt) {
           self.explosions.push(new Explosion(bullet.centerX(), bullet.centerY(), false));
           if (bullet.owner && bullet.owner.isPlayer) {
             if (mapResult.destroyed) {
-              Audio.playBrickHit();
+              Audio.playHitBrick();
             } else if (mapResult.bounced) {
-              Audio.playSteelHit();
+              Audio.playHitSteel();
             }
           }
         } else {

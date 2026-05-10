@@ -1,5 +1,6 @@
 var CONFIG = require('./config');
 var Utils = require('./utils');
+var Audio = require('./audio');
 
 function EnemyAI(tank, gameMap, playerTanks) {
   this.tank = tank;
@@ -17,6 +18,7 @@ function EnemyAI(tank, gameMap, playerTanks) {
   this.wantsToFire = false;
   this.fireTimer = 0;
   this.fireInterval = 0;
+  this.moveSoundTimer = 0;
 }
 
 EnemyAI.prototype.update = function(dt, allTanks) {
@@ -73,6 +75,14 @@ EnemyAI.prototype.update = function(dt, allTanks) {
   if (canMove) {
     this.tank.x = newX;
     this.tank.y = newY;
+    if (this.moveSoundTimer <= 0) {
+      Audio.playEnemyMove();
+      this.moveSoundTimer = 120;
+    }
+  }
+
+  if (this.moveSoundTimer > 0) {
+    this.moveSoundTimer -= dt * 60;
   }
 
   this.wantsToFire = this._shouldFire();

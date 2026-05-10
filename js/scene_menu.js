@@ -23,6 +23,7 @@ MenuScene.prototype.enter = function() {
   this.titleY = 80;
   this.inputCooldown = 0;
   Audio.init();
+  Audio.startBGM();
 };
 
 MenuScene.prototype.exit = function() {
