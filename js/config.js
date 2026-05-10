@@ -38,7 +38,10 @@ var CONFIG = {
     PLAYER_BULLET_SPEEDS: [240, 240, 300, 300],
     PLAYER_BULLET_COUNTS: [1, 1, 2, 2],
     PLAYER_FIRE_RATES: [15, 12, 8, 6],
-    PLAYER_CAN_PIERCE_STEEL: [false, false, false, true],
+    PLAYER_BULLET_DAMAGE: [1, 2, 3, 4],
+    PLAYER_CAN_PIERCE_STEEL: [false, false, true, true],
+    PLAYER_CAN_PIERCE_FOREST: [false, false, false, true],
+    PLAYER_CAN_PIERCE_WATER: [false, false, false, true],
 
     ENEMY_BASIC_SPEED: 30,
     ENEMY_FAST_SPEED: 90,
@@ -105,7 +108,7 @@ var CONFIG = {
       BULLET_SPEED: 120,
       BULLET_COUNT: 1,
       FIRE_RATE: 45,
-      COLOR_KEY: 'gray'
+      COLOR_KEY: 'red'
     },
     POWER: {
       ID: 2,
@@ -249,10 +252,10 @@ var CONFIG = {
     ENEMY_BASIC_TRACK: '#7C7C7C',
     ENEMY_BASIC_TURRET: '#FCFCFC',
 
-    ENEMY_FAST_BODY: '#BCBCBC',
-    ENEMY_FAST_TRACK: '#7C7C7C',
-    ENEMY_FAST_TURRET: '#FCFCFC',
-    ENEMY_FAST_ACCENT: '#F8B800',
+    ENEMY_FAST_BODY: '#7CB342',
+    ENEMY_FAST_TRACK: '#4CAF50',
+    ENEMY_FAST_TURRET: '#AED581',
+    ENEMY_FAST_ACCENT: '#C5E1A5',
 
     ENEMY_POWER_BODY: '#0058F8',
     ENEMY_POWER_TRACK: '#0038A8',

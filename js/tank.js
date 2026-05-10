@@ -30,6 +30,9 @@ function Tank(x, y, direction, isPlayer, playerIndex) {
   this.gunEnabled = false;
   this.gunTimer = 0;
   this.canPierceSteel = false;
+  this.canPierceForest = false;
+  this.canPierceWater = false;
+  this.bulletDamage = 1;
 
   this.spawning = true;
   this.spawnTimer = 0;
@@ -217,7 +220,7 @@ Tank.prototype.fire = function() {
       break;
   }
 
-  var bullet = new Bullet(bx, by, this.direction, this.bulletSpeed, this, this.canPierceSteel);
+  var bullet = new Bullet(bx, by, this.direction, this.bulletSpeed, this, this.canPierceSteel, this.bulletDamage, this.canPierceForest, this.canPierceWater);
   this.bullets.push(bullet);
   if (this.isPlayer) {
     Audio.playPlayerShoot();
@@ -225,10 +228,11 @@ Tank.prototype.fire = function() {
   return bullet;
 };
 
-Tank.prototype.takeDamage = function() {
+Tank.prototype.takeDamage = function(damage) {
   if (this.shielded || this.spawning) return false;
 
-  this.hp--;
+  var dmg = damage || 1;
+  this.hp -= dmg;
   if (this.hp <= 0) {
     this.alive = false;
     return true;
@@ -248,9 +252,10 @@ Tank.prototype.setGun = function(duration) {
   this.gunTimer = duration;
 };
 
-Tank.prototype.upgrade = function() {
+Tank.prototype.upgrade = function(amount) {
   if (!this.isPlayer) return;
-  this.starLevel = Math.min(this.starLevel + 1, CONFIG.GAME.MAX_PLAYER_STARS);
+  var add = amount || 1;
+  this.starLevel = Math.min(this.starLevel + add, CONFIG.GAME.MAX_PLAYER_STARS);
   this._applyUpgrade();
 };
 
@@ -261,7 +266,10 @@ Tank.prototype._applyUpgrade = function() {
   this.bulletSpeed = CONFIG.TANK.PLAYER_BULLET_SPEEDS[lvl];
   this.maxBullets = CONFIG.TANK.PLAYER_BULLET_COUNTS[lvl];
   this.fireRate = CONFIG.TANK.PLAYER_FIRE_RATES[lvl] * (1000 / 60);
+  this.bulletDamage = CONFIG.TANK.PLAYER_BULLET_DAMAGE[lvl];
   this.canPierceSteel = CONFIG.TANK.PLAYER_CAN_PIERCE_STEEL[lvl];
+  this.canPierceForest = CONFIG.TANK.PLAYER_CAN_PIERCE_FOREST[lvl];
+  this.canPierceWater = CONFIG.TANK.PLAYER_CAN_PIERCE_WATER[lvl];
 };
 
 Tank.prototype.render = function(ctx) {
@@ -283,7 +291,7 @@ Tank.prototype.render = function(ctx) {
   var sprite = null;
   if (this.isPlayer) {
     var playerSprites = this.playerIndex === 0 ? sprites.player1 : sprites.player2;
-    var starIdx = Math.min(this.starLevel, 2);
+    var starIdx = Math.min(this.starLevel, 3);
     sprite = playerSprites[this.direction][starIdx][this.animFrame];
   } else {
     if (this.maxHp > 1 && this.hp > 0 && this.hp <= 4) {

@@ -9,7 +9,7 @@ function getSprites() {
   return _sprites;
 }
 
-function Bullet(x, y, direction, speed, owner, canPierceSteel) {
+function Bullet(x, y, direction, speed, owner, canPierceSteel, damage, canPierceForest, canPierceWater) {
   var w = CONFIG.TANK.BULLET_SIZE_SCALED;
   var h = CONFIG.TANK.BULLET_SIZE_SCALED;
   Entity.call(this, x, y, w, h);
@@ -18,6 +18,9 @@ function Bullet(x, y, direction, speed, owner, canPierceSteel) {
   this.speed = speed;
   this.owner = owner;
   this.canPierceSteel = canPierceSteel || false;
+  this.canPierceForest = canPierceForest || false;
+  this.canPierceWater = canPierceWater || false;
+  this.damage = damage || 1;
   this.alive = true;
 }
 

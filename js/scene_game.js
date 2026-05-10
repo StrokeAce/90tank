@@ -57,7 +57,7 @@ function GameScene(renderer, sceneManager) {
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
   
-  this.powerupTypes = [0, 1, 2, 3, 4, 5, 6];
+  this.powerupTypes = [5, 5, 5, 6, 0, 1, 2, 3, 4];
   this.currentPowerupIndex = 0;
 }
 
@@ -118,7 +118,7 @@ GameScene.prototype._loadStage = function() {
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
   
-  this.powerupTypes = [0, 1, 2, 3, 4, 5, 6];
+  this.powerupTypes = [5, 5, 5, 6, 0, 1, 2, 3, 4];
   this.currentPowerupIndex = 0;
 
   this._spawnPlayer1();
@@ -547,7 +547,7 @@ GameScene.prototype._checkBulletTankCollisions = function() {
         if (!target.alive || target.spawning) continue;
         if (Collision.checkBulletTank(bullet, target)) {
           bullet.alive = false;
-          var destroyed = target.takeDamage();
+          var destroyed = target.takeDamage(bullet.damage);
           if (destroyed) {
             self.explosions.push(new Explosion(target.centerX(), target.centerY(), true, function() {
               if (target.isPlayer) {
@@ -722,10 +722,15 @@ GameScene.prototype._applyPowerUp = function(result, player) {
       Audio.playMoreLife();
       break;
     case 'upgrade':
-      player.upgrade();
+      player.upgrade(1);
       break;
     case 'gun':
       player.setGun(result.duration);
+      var currentLevel = player.starLevel;
+      player.upgrade(result.upgradeAmount || 2);
+      if (player.starLevel === currentLevel) {
+        Audio.playPowerup();
+      }
       break;
   }
   

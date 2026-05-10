@@ -61,7 +61,6 @@ function loadPowerupIcons() {
     var path = icons[type];
     promises.push(loadImage(path).then(function(img) {
       powerupIcons[type] = img;
-      console.log('✅ 道具图标加载成功:', path);
     }).catch(function() {
       console.log('⚠️ 道具图标加载失败:', path);
     }));
@@ -149,7 +148,7 @@ PowerUp.prototype.collect = function(player) {
     case CONFIG.POWERUP_TYPE.STAR.ID:
       return { effect: 'upgrade' };
     case CONFIG.POWERUP_TYPE.GUN.ID:
-      return { effect: 'gun', duration: CONFIG.POWERUP_TYPE.GUN.DURATION };
+      return { effect: 'gun', duration: CONFIG.POWERUP_TYPE.GUN.DURATION, upgradeAmount: 2 };
   }
   return null;
 };
