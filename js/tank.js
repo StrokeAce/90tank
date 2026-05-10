@@ -224,6 +224,7 @@ Tank.prototype.fire = function() {
   this.bullets.push(bullet);
   if (this.isPlayer) {
     Audio.playPlayerShoot();
+    console.log('Player bullet created - canPierceForest:', bullet.canPierceForest, '- canPierceWater:', bullet.canPierceWater);
   }
   return bullet;
 };
@@ -270,6 +271,7 @@ Tank.prototype._applyUpgrade = function() {
   this.canPierceSteel = CONFIG.TANK.PLAYER_CAN_PIERCE_STEEL[lvl];
   this.canPierceForest = CONFIG.TANK.PLAYER_CAN_PIERCE_FOREST[lvl];
   this.canPierceWater = CONFIG.TANK.PLAYER_CAN_PIERCE_WATER[lvl];
+  console.log('Tank upgraded to level', lvl + 1, '- canPierceForest:', this.canPierceForest, '- canPierceWater:', this.canPierceWater);
 };
 
 Tank.prototype.render = function(ctx) {

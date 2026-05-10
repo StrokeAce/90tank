@@ -144,10 +144,8 @@ GameScene.prototype._spawnPlayer1 = function() {
   var y = spawn.y * CONFIG.TILE.CELL_SIZE_SCALED;
 
   this.player1 = new Tank(x, y, CONFIG.DIRECTION.UP, true, 0);
-  this.player1.speed = CONFIG.TANK.PLAYER_SPEEDS[0];
-  this.player1.bulletSpeed = CONFIG.TANK.PLAYER_BULLET_SPEEDS[0];
-  this.player1.maxBullets = CONFIG.TANK.PLAYER_BULLET_COUNTS[0];
-  this.player1.fireRate = CONFIG.TANK.PLAYER_FIRE_RATES[0] * (1000 / 60);
+  this.player1.starLevel = 0;
+  this.player1._applyUpgrade();
   this.player1.setShield(CONFIG.GAME.SPAWN_PROTECTION_TIME);
 
   this._pushAwayEnemiesFromSpawn(this.player1);
@@ -159,10 +157,8 @@ GameScene.prototype._spawnPlayer2 = function() {
   var y = spawn.y * CONFIG.TILE.CELL_SIZE_SCALED;
 
   this.player2 = new Tank(x, y, CONFIG.DIRECTION.UP, true, 1);
-  this.player2.speed = CONFIG.TANK.PLAYER_SPEEDS[0];
-  this.player2.bulletSpeed = CONFIG.TANK.PLAYER_BULLET_SPEEDS[0];
-  this.player2.maxBullets = CONFIG.TANK.PLAYER_BULLET_COUNTS[0];
-  this.player2.fireRate = CONFIG.TANK.PLAYER_FIRE_RATES[0] * (1000 / 60);
+  this.player2.starLevel = 0;
+  this.player2._applyUpgrade();
   this.player2.setShield(CONFIG.GAME.SPAWN_PROTECTION_TIME);
 
   this._pushAwayEnemiesFromSpawn(this.player2);

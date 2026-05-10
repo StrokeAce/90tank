@@ -7,7 +7,7 @@ function StageSelectScene(renderer, sceneManager) {
   this.renderer = renderer;
   this.sceneManager = sceneManager;
   this.selectedStage = 0;
-  this.maxStage = Storage.getMaxStage() - 1;
+  this.maxStage = 34;
   this.twoPlayer = false;
   this.stagesPerRow = 10;
   this.blinkTimer = 0;
@@ -19,7 +19,7 @@ function StageSelectScene(renderer, sceneManager) {
 StageSelectScene.prototype.enter = function(data) {
   this.twoPlayer = data ? data.twoPlayer : false;
   this.selectedStage = 0;
-  this.maxStage = Math.min(Storage.getMaxStage() - 1, this.totalLevels - 1);
+  this.maxStage = this.totalLevels - 1;
   this.blinkTimer = 0;
 };
 

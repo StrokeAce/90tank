@@ -136,7 +136,9 @@ GameMap.prototype.setTileAt = function(col, row, type) {
 GameMap.prototype.destroyTile = function(col, row) {
   if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) return;
   var type = this.terrain[row][col];
-  if (type === CONFIG.TILE_TYPE.BRICK) {
+  if (type === CONFIG.TILE_TYPE.BRICK || 
+      type === CONFIG.TILE_TYPE.FOREST || 
+      type === CONFIG.TILE_TYPE.WATER) {
     this.terrain[row][col] = CONFIG.TILE_TYPE.EMPTY;
   }
 };
@@ -200,6 +202,16 @@ GameMap.prototype.checkBulletCollision = function(bullet) {
         hitTiles.push({ col: col, row: row, type: 'steel' });
       } else if (tile === CONFIG.TILE_TYPE.EAGLE) {
         hitTiles.push({ col: col, row: row, type: 'eagle' });
+      } else if (tile === CONFIG.TILE_TYPE.FOREST) {
+        if (bullet.canPierceForest) {
+          hitTiles.push({ col: col, row: row, type: 'forest' });
+          console.log('Forest will be destroyed, bullet.canPierceForest:', bullet.canPierceForest);
+        }
+      } else if (tile === CONFIG.TILE_TYPE.WATER) {
+        if (bullet.canPierceWater) {
+          hitTiles.push({ col: col, row: row, type: 'water' });
+          console.log('Water will be destroyed, bullet.canPierceWater:', bullet.canPierceWater);
+        }
       }
     }
   }
@@ -220,12 +232,18 @@ GameMap.prototype.checkBulletCollision = function(bullet) {
       result.hitEagle = true;
       this.eagleAlive = false;
       this.setTileAt(ht.col, ht.row, CONFIG.TILE_TYPE.EAGLE_DEAD);
+    } else if (ht.type === 'forest') {
+      this.destroyTile(ht.col, ht.row);
+    } else if (ht.type === 'water') {
+      this.destroyTile(ht.col, ht.row);
     }
   }
 
   if (hitTiles.some(function(t) { return t.type === 'brick'; }) ||
       hitTiles.some(function(t) { return t.type === 'eagle'; }) ||
-      (bullet.canPierceSteel && hitTiles.some(function(t) { return t.type === 'steel'; }))) {
+      (bullet.canPierceSteel && hitTiles.some(function(t) { return t.type === 'steel'; })) ||
+      (bullet.canPierceForest && hitTiles.some(function(t) { return t.type === 'forest'; })) ||
+      (bullet.canPierceWater && hitTiles.some(function(t) { return t.type === 'water'; }))) {
     result.destroyed = true;
   }
 

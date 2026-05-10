@@ -34,10 +34,10 @@ var CONFIG = {
     HALF_SIZE: 8,
     HALF_SIZE_SCALED: 8,
 
-    PLAYER_SPEEDS: [90, 120, 150, 180],
+    PLAYER_SPEEDS: [90, 110, 130, 150],
     PLAYER_BULLET_SPEEDS: [240, 240, 300, 300],
     PLAYER_BULLET_COUNTS: [1, 1, 2, 2],
-    PLAYER_FIRE_RATES: [15, 12, 8, 6],
+    PLAYER_FIRE_RATES: [18, 15, 12, 9],
     PLAYER_BULLET_DAMAGE: [1, 2, 3, 4],
     PLAYER_CAN_PIERCE_STEEL: [false, false, true, true],
     PLAYER_CAN_PIERCE_FOREST: [false, false, false, true],
@@ -113,7 +113,7 @@ var CONFIG = {
     POWER: {
       ID: 2,
       SPEED: 30,
-      HP: 1,
+      HP: 2,
       SCORE: 300,
       BULLET_SPEED: 240,
       BULLET_COUNT: 1,
