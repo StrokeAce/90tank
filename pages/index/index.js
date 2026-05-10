@@ -5,8 +5,9 @@ const MenuScene = require('../../js/scene_menu')
 const StageSelectScene = require('../../js/scene_stage_select')
 const GameScene = require('../../js/scene_game')
 const GameOverScene = require('../../js/scene_gameover')
+const SettingsScene = require('../../js/scene_settings')
 const Audio = require('../../js/audio')
-
+const PowerUp = require('../../js/powerup')
 Page({
   canvas: null,
   ctx: null,
@@ -94,6 +95,7 @@ Page({
       this.sceneManager.register('stageSelect', new StageSelectScene(this.renderer, this.sceneManager))
       this.sceneManager.register('game', new GameScene(this.renderer, this.sceneManager))
       this.sceneManager.register('gameover', new GameOverScene(this.renderer, this.sceneManager))
+      this.sceneManager.register('settings', new SettingsScene(this.renderer, this.sceneManager))
 
       this.sceneManager.changeScene('menu')
 

@@ -15,6 +15,7 @@ function MenuScene(renderer, sceneManager) {
   this.animTimer = 0;
   this.inputCooldown = 0;
   this._boundTouchHandler = null;
+  this.settingsBtn = { x: 20, y: 20, width: 60, height: 30 };
 }
 
 MenuScene.prototype.enter = function() {
@@ -23,7 +24,6 @@ MenuScene.prototype.enter = function() {
   this.titleY = 80;
   this.inputCooldown = 0;
   Audio.init();
-  Audio.startBGM();
 };
 
 MenuScene.prototype.exit = function() {
@@ -40,6 +40,12 @@ MenuScene.prototype.handleTouchStart = function(e) {
   var ty = touch.clientY;
   var centerX = this.renderer.screenWidth / 2;
   var centerY = this.renderer.screenHeight / 2;
+
+  if (tx >= this.settingsBtn.x && tx <= this.settingsBtn.x + this.settingsBtn.width &&
+      ty >= this.settingsBtn.y && ty <= this.settingsBtn.y + this.settingsBtn.height) {
+    this.sceneManager.changeScene('settings', { prevScene: 'menu' });
+    return;
+  }
 
   var startY = centerY - 40;
   var optionHeight = 25;
@@ -95,6 +101,19 @@ MenuScene.prototype.render = function() {
   var centerY = this.renderer.screenHeight / 2;
 
   ctx.save();
+  
+  ctx.fillStyle = '#444444';
+  ctx.fillRect(this.settingsBtn.x, this.settingsBtn.y, this.settingsBtn.width, this.settingsBtn.height);
+  ctx.strokeStyle = CONFIG.COLOR.PLAYER1_BODY;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(this.settingsBtn.x, this.settingsBtn.y, this.settingsBtn.width, this.settingsBtn.height);
+  
+  ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('设置', this.settingsBtn.x + this.settingsBtn.width / 2, this.settingsBtn.y + this.settingsBtn.height / 2);
+
   ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
   ctx.font = 'bold 28px monospace';
   ctx.textAlign = 'center';

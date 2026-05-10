@@ -67,6 +67,14 @@ var Storage = {
     this.save('settings', settings);
   },
 
+  getBGMEnabled: function() {
+    return this.load('bgmEnabled', false);
+  },
+
+  setBGMEnabled: function(enabled) {
+    this.save('bgmEnabled', enabled);
+  },
+
   getGameProgress: function() {
     return this.load('progress', {
       stage: 1,

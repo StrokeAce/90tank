@@ -9,12 +9,15 @@ var Audio = {
   _startBgmAudio: null,
   _sounds: {},
   _initialized: false,
+  _bgmEnabled: false,
 
   init: function() {
     if (this._initialized) return;
     this._initialized = true;
     this._sfxVolume = 0.8;
     this._bgmVolume = 0.5;
+    var Storage = require('./storage');
+    this._bgmEnabled = Storage.getBGMEnabled();
     this._loadSounds();
     this._initBGM();
     this._initStartBGM();
@@ -22,7 +25,6 @@ var Audio = {
 
   _loadSounds: function() {
     var soundFiles = {
-      shoot: '/audio/shoot.mp3',
       move: '/audio/move.mp3',
       playerMove: '/audio/player_move.mp3',
       playerShoot: '/audio/player_shoot.mp3',
@@ -65,7 +67,7 @@ var Audio = {
   _initStartBGM: function() {
     try {
       this._startBgmAudio = wx.createInnerAudioContext();
-      this._startBgmAudio.src = '/audio/start_background.mp3';
+      this._startBgmAudio.src = '/audio/game_start.mp3';
       this._startBgmAudio.volume = this._bgmVolume;
       this._startBgmAudio.loop = false;
     } catch (e) {
@@ -218,7 +220,7 @@ var Audio = {
   },
 
   startBGM: function() {
-    if (this._bgmPlaying || !this._bgmAudio) return;
+    if (!this._bgmEnabled || this._bgmPlaying || !this._bgmAudio) return;
     this._bgmPlaying = true;
     try {
       this._bgmAudio.volume = this._bgmVolume;
@@ -283,6 +285,21 @@ var Audio = {
 
   isMuted: function() {
     return this._muted;
+  },
+
+  setBGMEnabled: function(enabled) {
+    this._bgmEnabled = enabled;
+    var Storage = require('./storage');
+    Storage.setBGMEnabled(enabled);
+    if (enabled) {
+      this.startBGM();
+    } else {
+      this.stopBGM();
+    }
+  },
+
+  isBGMEnabled: function() {
+    return this._bgmEnabled;
   },
 
   _createWavBase64: function(pcmBase64, pcmLength, sampleRate, numChannels, bitsPerSample) {
