@@ -561,7 +561,9 @@ GameScene.prototype._checkBulletTankCollisions = function() {
             }
           } else {
             if (shooter.isPlayer) {
-              Audio.playHit();
+              if (target.enemyType === CONFIG.ENEMY_TYPE.ARMOR.ID) {
+                Audio.playHitSteelEnemy();
+              }
             }
           }
           break;

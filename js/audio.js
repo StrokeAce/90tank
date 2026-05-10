@@ -101,7 +101,7 @@ var Audio = {
   },
 
   playPlayerMove: function() {
-    this._playSound('playerMove', 1.0);
+    this._playSound('playerMove', 0.4);
   },
 
   playPause: function() {
@@ -146,6 +146,10 @@ var Audio = {
 
   playPropBoom: function() {
     this._playSound('propBoom', 1.0);
+  },
+
+  playPowerup: function() {
+    this._playSound('moreLife', 1.0);
   },
 
   playLevelComplete: function() {
