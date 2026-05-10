@@ -8,7 +8,7 @@ function StageSelectScene(renderer, sceneManager) {
   this.selectedStage = 0;
   this.maxStage = Storage.getMaxStage() - 1;
   this.twoPlayer = false;
-  this.stagesPerRow = 5;
+  this.stagesPerRow = 10;
   this.blinkTimer = 0;
   this.blinkOn = true;
   this.inputCooldown = 0;
@@ -35,8 +35,13 @@ StageSelectScene.prototype.handleTouchStart = function(e) {
   var tx = touch.clientX;
   var ty = touch.clientY;
   var scale = this.renderer.scale;
+
+  if (tx >= 10 * scale && tx <= 70 * scale && ty >= 15 * scale && ty <= 35 * scale) {
+    this.sceneManager.changeScene('menu');
+    return;
+  }
+
   var centerX = this.renderer.screenWidth / 2;
-  var centerY = this.renderer.screenHeight / 2;
 
   var cols = this.stagesPerRow;
   var cellW = 45 * scale;
@@ -129,15 +134,14 @@ StageSelectScene.prototype.render = function() {
     ctx.fillText(String(i + 1), cx + cellW / 2, cy + cellH / 2);
   }
 
-  ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
-  ctx.font = 'bold 14px monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText('第 ' + (this.selectedStage + 1) + ' 关', centerX, 310 * scale);
-
   ctx.fillStyle = '#7C7C7C';
   ctx.font = '8px monospace';
   ctx.fillText('点击关卡开始', centerX, 380 * scale);
+
+  ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+  ctx.font = '12px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('◀ 返回', 10 * scale, 20 * scale);
   ctx.restore();
 };
 
