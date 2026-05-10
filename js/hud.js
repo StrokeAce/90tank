@@ -96,7 +96,7 @@ HUD.prototype._renderStageInfo = function(ctx) {
   ctx.font = '8px monospace';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText('ST ' + this.stage, stageX, stageY);
+  ctx.fillText(this.stage + '关', stageX, stageY);
 };
 
 HUD.prototype._renderPlayerLivesCount = function(ctx) {

@@ -55,7 +55,7 @@ GameOverScene.prototype.render = function() {
 
   ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
   ctx.font = '14px monospace';
-  ctx.fillText('SCORE', centerX, 140 * scale);
+  ctx.fillText('得分', centerX, 140 * scale);
 
   ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
   ctx.font = 'bold 20px monospace';
@@ -63,16 +63,16 @@ GameOverScene.prototype.render = function() {
 
   ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
   ctx.font = '12px monospace';
-  ctx.fillText('STAGE REACHED: ' + this.stage, centerX, 210 * scale);
+  ctx.fillText('到达关卡: ' + this.stage, centerX, 210 * scale);
 
-  ctx.fillText('HIGH SCORE: ' + Utils.formatScore(Storage.getHighScore()), centerX, 240 * scale);
+  ctx.fillText('最高分: ' + Utils.formatScore(Storage.getHighScore()), centerX, 240 * scale);
 
   if (this.inputCooldown <= 0) {
     var blink = Math.floor(this.timer * 2) % 2 === 0;
     if (blink) {
       ctx.fillStyle = '#7C7C7C';
       ctx.font = '10px monospace';
-      ctx.fillText('TAP TO CONTINUE', centerX, 300 * scale);
+      ctx.fillText('点击继续', centerX, 300 * scale);
     }
   }
 

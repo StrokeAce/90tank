@@ -101,8 +101,8 @@ MenuScene.prototype.render = function() {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   if (this.titleY < this.titleTargetY) this.titleY += 3;
-  ctx.fillText('BATTLE', centerX, this.titleY);
-  ctx.fillText('CITY', centerX, this.titleY + 30);
+  ctx.fillText('坦克', centerX, this.titleY);
+  ctx.fillText('大战', centerX, this.titleY + 30);
 
   var startY = 160;
   var optionHeight = 25;
@@ -120,11 +120,11 @@ MenuScene.prototype.render = function() {
 
   ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
   ctx.font = '10px monospace';
-  ctx.fillText('HIGH SCORE: ' + Utils.formatScore(Storage.getHighScore()), centerX, 280);
+  ctx.fillText('最高分: ' + Utils.formatScore(Storage.getHighScore()), centerX, 280);
 
   ctx.fillStyle = '#7C7C7C';
   ctx.font = '8px monospace';
-  ctx.fillText('TOUCH TO SELECT', centerX, 300);
+  ctx.fillText('触摸选择', centerX, 300);
   ctx.restore();
 };
 

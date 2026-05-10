@@ -95,7 +95,7 @@ StageSelectScene.prototype.render = function() {
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText('SELECT STAGE', centerX, 20 * scale);
+  ctx.fillText('选择关卡', centerX, 20 * scale);
 
   var cols = this.stagesPerRow;
   var rows = Math.ceil(this.totalLevels / cols);
@@ -133,11 +133,11 @@ StageSelectScene.prototype.render = function() {
   ctx.font = 'bold 14px monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText('STAGE ' + (this.selectedStage + 1), centerX, 310 * scale);
+  ctx.fillText('第 ' + (this.selectedStage + 1) + ' 关', centerX, 310 * scale);
 
   ctx.fillStyle = '#7C7C7C';
   ctx.font = '8px monospace';
-  ctx.fillText('TAP STAGE TO START', centerX, 380 * scale);
+  ctx.fillText('点击关卡开始', centerX, 380 * scale);
   ctx.restore();
 };
 

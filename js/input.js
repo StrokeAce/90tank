@@ -193,7 +193,7 @@ FireButton.prototype.render = function(ctx) {
   ctx.font = 'bold ' + Math.floor(this.radius * 0.7) + 'px monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('FIRE', this.centerX, this.centerY);
+  ctx.fillText('开火', this.centerX, this.centerY);
 
   ctx.globalAlpha = 1.0;
 };

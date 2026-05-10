@@ -738,10 +738,12 @@ GameScene.prototype._onPauseMenuClick = function(tx, ty) {
   var centerY = this.renderer.screenHeight / 2;
 
   if (ty >= centerY + 10 && ty <= centerY + 30) {
-    this.paused = false;
-    this.input._paused = false;
-  } else if (ty >= centerY + 40 && ty <= centerY + 60) {
-    this.sceneManager.changeScene('menu');
+    if (tx >= centerX - 60 && tx <= centerX - 20) {
+      this.paused = false;
+      this.input._paused = false;
+    } else if (tx >= centerX + 20 && tx <= centerX + 60) {
+      this.sceneManager.changeScene('menu');
+    }
   }
 };
 
@@ -772,7 +774,7 @@ GameScene.prototype.render = function() {
     ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('STAGE ' + (this.stage + 1), centerX, centerY);
+    ctx.fillText('第 ' + (this.stage + 1) + ' 关', centerX, centerY);
     ctx.restore();
     return;
   }
@@ -819,14 +821,14 @@ GameScene.prototype.render = function() {
     ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('PAUSED', centerX, centerY - 30);
+    ctx.fillText('暂停', centerX, centerY - 30);
 
     ctx.font = '14px monospace';
     ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
-    ctx.fillText('RESUME', centerX, centerY + 20);
+    ctx.fillText('继续', centerX - 40, centerY + 20);
 
-    ctx.fillStyle = '#888888';
-    ctx.fillText('QUIT', centerX, centerY + 50);
+    ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+    ctx.fillText('退出', centerX + 40, centerY + 20);
     ctx.restore();
   }
 
@@ -840,7 +842,7 @@ GameScene.prototype.render = function() {
     ctx.font = 'bold 22px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('GAME OVER', centerX, centerY);
+    ctx.fillText('游戏结束', centerX, centerY);
     ctx.restore();
   }
 
@@ -854,7 +856,7 @@ GameScene.prototype.render = function() {
     ctx.font = 'bold 20px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('STAGE CLEAR!', centerX, centerY);
+    ctx.fillText('关卡通过!', centerX, centerY);
     ctx.restore();
   }
 };
