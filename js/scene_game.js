@@ -53,6 +53,7 @@ function GameScene(renderer, sceneManager) {
   this.paused = false;
   this.player1RespawnTimer = 0;
   this.player2RespawnTimer = 0;
+  this.playerDeadTimer = 0;
 
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
@@ -79,6 +80,7 @@ GameScene.prototype.enter = function(data) {
   this.explosions = [];
   this.powerups = [];
   this.allBullets = [];
+  this.playerDeadTimer = 0;
 
   this.hud = new HUD();
   this.hud.twoPlayer = this.twoPlayer;
@@ -432,12 +434,18 @@ GameScene.prototype._handlePlayerRespawn = function(dt) {
   }
 
   if (!this.twoPlayer && this.player1 && !this.player1.alive && this.lives <= 0) {
-    this._triggerGameOver();
+    this.playerDeadTimer += dt * 1000;
+    if (this.playerDeadTimer >= CONFIG.GAME.PLAYER_DEATH_DELAY) {
+      this._triggerGameOver();
+    }
   }
 
   if (this.twoPlayer && this.player1 && !this.player1.alive && this.player2 && !this.player2.alive &&
       this.lives <= 0 && this.player2Lives <= 0) {
-    this._triggerGameOver();
+    this.playerDeadTimer += dt * 1000;
+    if (this.playerDeadTimer >= CONFIG.GAME.PLAYER_DEATH_DELAY) {
+      this._triggerGameOver();
+    }
   }
 };
 
