@@ -35,7 +35,9 @@ GameMap.prototype.render = function(ctx) {
   if (!this.terrain) return;
 
   for (var row = 0; row < this.rows; row++) {
+    if (!this.terrain[row]) continue;
     for (var col = 0; col < this.cols; col++) {
+      if (this.terrain[row][col] === undefined) continue;
       var type = this.terrain[row][col];
       var x = col * this.cellSize;
       var y = row * this.cellSize;
@@ -88,7 +90,9 @@ GameMap.prototype._renderGrid = function(ctx) {
 GameMap.prototype.renderForest = function(ctx) {
   if (!this.terrain) return;
   for (var row = 0; row < this.rows; row++) {
+    if (!this.terrain[row]) continue;
     for (var col = 0; col < this.cols; col++) {
+      if (this.terrain[row][col] === undefined) continue;
       if (this.terrain[row][col] === CONFIG.TILE_TYPE.FOREST) {
         var x = col * this.cellSize;
         var y = row * this.cellSize;
@@ -123,6 +127,9 @@ GameMap.prototype._renderEagle = function(ctx) {
 
 GameMap.prototype.getTileAt = function(col, row) {
   if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) {
+    return CONFIG.TILE_TYPE.STEEL;
+  }
+  if (!this.terrain || !this.terrain[row]) {
     return CONFIG.TILE_TYPE.STEEL;
   }
   return this.terrain[row][col];
