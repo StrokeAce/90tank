@@ -132,22 +132,28 @@ PowerUp.prototype.render = function(ctx) {
 
 PowerUp.prototype.collect = function(player) {
   this.alive = false;
-  Audio.playPowerup();
 
   switch (this.type) {
     case CONFIG.POWERUP_TYPE.CLOCK.ID:
+      Audio.playEatProp();
       return { effect: 'freeze', duration: CONFIG.GAME.FREEZE_DURATION };
     case CONFIG.POWERUP_TYPE.GRENADE.ID:
+      Audio.playEatProp();
       return { effect: 'grenade' };
     case CONFIG.POWERUP_TYPE.HELMET.ID:
+      Audio.playEatProp();
       return { effect: 'shield', duration: CONFIG.GAME.SHIELD_DURATION };
     case CONFIG.POWERUP_TYPE.SHOVEL.ID:
+      Audio.playEatProp();
       return { effect: 'shovel', duration: CONFIG.GAME.BASE_STEEL_DURATION };
     case CONFIG.POWERUP_TYPE.TANK.ID:
+      Audio.playMoreLife();
       return { effect: 'extraLife' };
     case CONFIG.POWERUP_TYPE.STAR.ID:
+      Audio.playEatProp();
       return { effect: 'upgrade' };
     case CONFIG.POWERUP_TYPE.GUN.ID:
+      Audio.playEatProp();
       return { effect: 'gun', duration: CONFIG.POWERUP_TYPE.GUN.DURATION, upgradeAmount: 2 };
   }
   return null;

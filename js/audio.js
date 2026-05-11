@@ -28,6 +28,10 @@ var Audio = {
       move: '/audio/move.mp3',
       playerMove: '/audio/player_move.mp3',
       playerShoot: '/audio/player_shoot.mp3',
+      playerHit: '/audio/hit_player.mp3',
+      eatProp: '/audio/eat_prop.mp3',
+      propAppear: '/audio/prop_appear.mp3',
+      enemyShoot: '/audio/enemy_shoot.mp3',
       pause: '/audio/pause.mp3',
       enemyBoom: '/audio/enemy_boom.mp3',
       playerBoom: '/audio/player_boom.mp3',
@@ -96,6 +100,22 @@ var Audio = {
 
   playPlayerShoot: function() {
     this._playSound('playerShoot', 1.0);
+  },
+
+  playPlayerHit: function() {
+    this._playSound('playerHit', 1.0);
+  },
+
+  playEatProp: function() {
+    this._playSound('eatProp', 1.0);
+  },
+
+  playPropAppear: function() {
+    this._playSound('propAppear', 1.0);
+  },
+
+  playEnemyShoot: function() {
+    this._playSound('enemyShoot', 0.1);
   },
 
   playMove: function() {

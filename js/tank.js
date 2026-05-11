@@ -231,6 +231,7 @@ Tank.prototype.takeDamage = function(damage) {
       this.starLevel--;
       this._applyUpgrade();
       this.flashTimer = CONFIG.GAME.ARMOR_FLASH_DURATION;
+      Audio.playPlayerHit();
       return false;
     }
   }

@@ -56,6 +56,7 @@ function GameScene(renderer, sceneManager) {
 
   this.powerupEnemyCounter = 0;
   this.activePowerup = null;
+  this.powerupRespawnTimer = 0;
   
   this.powerupTypes = [5, 5, 5, 6, 0, 1, 2, 3, 4];
   this.currentPowerupIndex = 0;
@@ -120,6 +121,7 @@ GameScene.prototype._loadStage = function() {
   
   this.powerupTypes = [5, 5, 5, 6, 0, 1, 2, 3, 4];
   this.currentPowerupIndex = 0;
+  this.powerupRespawnTimer = 0;
 
   this._spawnPlayer1();
 
@@ -290,6 +292,14 @@ GameScene.prototype.update = function(dt) {
     return;
   }
 
+  if (!this.activePowerup && this.currentPowerupIndex < this.powerupTypes.length) {
+    this.powerupRespawnTimer += dt * 1000;
+    if (this.powerupRespawnTimer >= CONFIG.GAME.POWERUP_RESPAWN_INTERVAL) {
+      this._spawnNextPowerup();
+      this.powerupRespawnTimer = 0;
+    }
+  }
+
   if (this.gameOver) {
     this.gameOverTimer += dt * 1000;
     if (this.gameOverTimer >= CONFIG.GAME.GAME_OVER_DELAY) {
@@ -451,6 +461,8 @@ GameScene.prototype._updateEnemies = function(dt) {
         ai.update(dt, allTanks);
         if (ai.wantsToFire) {
           enemy.fire();
+          ai.fireTimer = 0;
+          Audio.playEnemyShoot();
           ai.wantsToFire = false;
         }
       }
@@ -623,6 +635,7 @@ GameScene.prototype._spawnPowerup = function() {
   var powerup = new PowerUp(px, py, type);
   this.powerups.push(powerup);
   this.activePowerup = powerup;
+  Audio.playPropAppear();
 };
 
 GameScene.prototype._spawnNextPowerup = function() {
@@ -651,6 +664,7 @@ GameScene.prototype._spawnNextPowerup = function() {
     this.powerups.push(powerup);
     this.activePowerup = powerup;
     this.currentPowerupIndex++;
+    Audio.playPropAppear();
   }
 };
 
@@ -730,7 +744,7 @@ GameScene.prototype._applyPowerUp = function(result, player) {
       break;
   }
   
-  this._spawnNextPowerup();
+  this.powerupRespawnTimer = 0;
 };
 
 GameScene.prototype._updateExplosions = function(dt) {

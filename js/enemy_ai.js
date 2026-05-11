@@ -85,13 +85,14 @@ EnemyAI.prototype.update = function(dt, allTanks) {
     this.moveSoundTimer -= dt * 60;
   }
 
-  this.wantsToFire = this._shouldFire();
+  this.fireTimer += dt * 1000;
 
   if (this.fireInterval <= 0) {
     this.fireInterval = this.tank.fireRate + Utils.randomInt(0, 1000);
   }
 
-  if (this.fireTimer >= this.fireInterval) {
+  this.wantsToFire = false;
+  if (this.fireTimer >= this.fireInterval && this._shouldFire()) {
     this.wantsToFire = true;
     this.fireTimer = 0;
     this.fireInterval = this.tank.fireRate + Utils.randomInt(0, 1000);
