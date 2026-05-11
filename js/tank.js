@@ -299,7 +299,7 @@ Tank.prototype.render = function(ctx) {
     var starIdx = Math.min(this.starLevel, 3);
     sprite = playerSprites[this.direction][starIdx][this.animFrame];
   } else {
-    if (this.maxHp > 1 && this.hp > 0 && this.hp <= 4) {
+    if (this.enemyType === 3 && this.hp > 0 && this.hp <= 4) {
       var armorSprites = sprites.enemyArmor[this.hp - 1];
       if (armorSprites && armorSprites[this.direction]) {
         sprite = armorSprites[this.direction][this.animFrame];
