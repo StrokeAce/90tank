@@ -1,4 +1,64 @@
 var CONFIG = require('./config');
+
+var _canvas = null;
+var eagleImages = {
+  live: null,
+  over: null
+};
+
+function setCanvas(canvas) {
+  _canvas = canvas;
+}
+
+function loadImage(src) {
+  return new Promise(function(resolve, reject) {
+    var img;
+    
+    if (wx.createImage) {
+      img = wx.createImage();
+    } else if (_canvas && _canvas.createImage) {
+      img = _canvas.createImage();
+    } else {
+      console.error('❌ 当前环境不支持创建图片对象！');
+      reject(new Error('Environment not supported'));
+      return;
+    }
+    
+    img.src = src;
+    
+    img.onload = function() {
+      resolve(img);
+    };
+    
+    img.onerror = function(err) {
+      console.error('❌ 加载图片失败:', src, err);
+      reject(err);
+    };
+  });
+}
+
+function loadEagleImages() {
+  var promises = [];
+  
+  promises.push(loadImage('/prop/eagle_live.png').then(function(img) {
+    eagleImages.live = img;
+  }).catch(function() {
+    console.log('⚠️ 鹰旗存活图片加载失败');
+  }));
+  
+  promises.push(loadImage('/prop/eagle_over.png').then(function(img) {
+    eagleImages.over = img;
+  }).catch(function() {
+    console.log('⚠️ 鹰旗死亡图片加载失败');
+  }));
+  
+  return Promise.all(promises);
+}
+
+function getEagleImages() {
+  return eagleImages;
+}
+
 var Sprites = {
   _cache: null,
 
@@ -438,35 +498,8 @@ var Sprites = {
       ctx.fillRect(13, 13, 1, 1);
     });
 
-    tiles.eagle = this._createSprite(16, 16, function(ctx, w, h) {
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, 16, 16);
-      ctx.fillStyle = CONFIG.COLOR.EAGLE_BODY;
-      ctx.fillRect(4, 2, 8, 12);
-      ctx.fillRect(2, 4, 12, 8);
-      ctx.fillStyle = CONFIG.COLOR.EAGLE_WING;
-      ctx.fillRect(2, 4, 3, 6);
-      ctx.fillRect(11, 4, 3, 6);
-      ctx.fillRect(5, 10, 6, 3);
-      ctx.fillStyle = '#FCFCFC';
-      ctx.fillRect(6, 4, 4, 3);
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(7, 5, 2, 1);
-    });
-
-    tiles.eagleDead = this._createSprite(16, 16, function(ctx, w, h) {
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, 16, 16);
-      ctx.fillStyle = CONFIG.COLOR.EAGLE_DEAD_DARK;
-      ctx.fillRect(3, 3, 10, 10);
-      ctx.fillStyle = CONFIG.COLOR.EAGLE_DEAD_MID;
-      ctx.fillRect(4, 4, 3, 3);
-      ctx.fillRect(9, 4, 3, 3);
-      ctx.fillRect(4, 9, 3, 3);
-      ctx.fillRect(9, 9, 3, 3);
-      ctx.fillStyle = '#333333';
-      ctx.fillRect(6, 6, 4, 4);
-    });
+    tiles.eagle = { type: 'image', key: 'live' };
+    tiles.eagleDead = { type: 'image', key: 'over' };
 
     return tiles;
   },
@@ -639,3 +672,6 @@ var Sprites = {
 };
 
 module.exports = Sprites;
+module.exports.setCanvas = setCanvas;
+module.exports.loadEagleImages = loadEagleImages;
+module.exports.getEagleImages = getEagleImages;

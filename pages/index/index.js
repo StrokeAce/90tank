@@ -8,6 +8,7 @@ const GameOverScene = require('../../js/scene_gameover')
 const SettingsScene = require('../../js/scene_settings')
 const Audio = require('../../js/audio')
 const PowerUp = require('../../js/powerup')
+const Sprites = require('../../js/sprites')
 Page({
   canvas: null,
   ctx: null,
@@ -87,10 +88,16 @@ Page({
   startGame: async function () {
     try {
       PowerUp.setCanvas(this.canvas);
+      Sprites.setCanvas(this.canvas);
       
       console.log('等待道具图标加载...');
       await PowerUp.loadPowerupIcons().catch(function() {
         console.log('部分道具图标加载失败，将使用默认图标');
+      });
+      
+      console.log('等待鹰旗图片加载...');
+      await Sprites.loadEagleImages().catch(function() {
+        console.log('鹰旗图片加载失败，将使用默认绘制');
       });
       
       this.renderer = new Renderer()

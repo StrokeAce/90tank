@@ -116,13 +116,24 @@ GameMap.prototype._renderEagle = function(ctx) {
   var ex = this.eagleCol * this.cellSize;
   var ey = this.eagleRow * this.cellSize;
   var sprite = this.eagleAlive ? this._sprites.tiles.eagle : this._sprites.tiles.eagleDead;
-  if (sprite) {
-    ctx.save();
-    ctx.translate(ex, ey);
+  if (!sprite) return;
+  
+  ctx.save();
+  ctx.translate(ex, ey);
+  
+  if (sprite.type === 'image') {
+    var Sprites = require('./sprites');
+    var eagleImages = Sprites.getEagleImages();
+    var img = sprite.key === 'live' ? eagleImages.live : eagleImages.over;
+    if (img) {
+      ctx.drawImage(img, 0, 0, this.tileSize * 2, this.tileSize * 2);
+    }
+  } else {
     ctx.scale((this.tileSize * 2) / sprite.width, (this.tileSize * 2) / sprite.height);
     sprite.drawFn(ctx, sprite.width, sprite.height);
-    ctx.restore();
   }
+  
+  ctx.restore();
 };
 
 GameMap.prototype.getTileAt = function(col, row) {
