@@ -21,6 +21,18 @@ GameMap.prototype.loadLevel = function(levelData) {
   this.terrain = levelData.terrain;
   this.eagleAlive = true;
   this._sprites = Sprites.generateAll();
+  
+  // 设置鹰旗位置的地形类型
+  if (this.terrain) {
+    // 鹰旗占据 2x2 的区域
+    for (var row = this.eagleRow; row < this.eagleRow + 2; row++) {
+      for (var col = this.eagleCol; col < this.eagleCol + 2; col++) {
+        if (row >= 0 && row < this.rows && col >= 0 && col < this.cols) {
+          this.terrain[row][col] = CONFIG.TILE_TYPE.EAGLE;
+        }
+      }
+    }
+  }
 };
 
 GameMap.prototype.update = function(dt) {

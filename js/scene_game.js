@@ -402,6 +402,8 @@ GameScene.prototype.update = function(dt) {
 
   if (this.gameOver) {
     this.gameOverTimer += dt * 1000;
+    // 游戏结束时仍然更新爆炸效果，让玩家看到鹰旗爆炸
+    this._updateExplosions(dt);
     if (this.gameOverTimer >= CONFIG.GAME.GAME_OVER_DELAY) {
       Storage.setHighScore(this.score);
       this.sceneManager.changeScene('gameover', {
@@ -615,9 +617,10 @@ GameScene.prototype._updateBullets = function(dt) {
       if (mapResult) {
         bullet.alive = false;
         if (mapResult.hitEagle) {
+          // 鹰旗被击中时添加大爆炸效果
+          self.explosions.push(new Explosion(bullet.centerX(), bullet.centerY(), true));
           self._triggerGameOver();
-        }
-        if (mapResult.destroyed || mapResult.bounced) {
+        } else if (mapResult.destroyed || mapResult.bounced) {
           self.explosions.push(new Explosion(bullet.centerX(), bullet.centerY(), false));
           if (bullet.owner && bullet.owner.isPlayer) {
             if (mapResult.destroyed) {
@@ -1049,17 +1052,20 @@ GameScene.prototype.render = function() {
   }
 
   if (this.gameOver) {
-    this.renderer.renderOverlay(0.6, '#000000');
-    var ctx = this.renderer.ctx;
-    var centerX = this.renderer.screenWidth / 2;
-    var centerY = this.renderer.screenHeight / 2;
-    ctx.save();
-    ctx.fillStyle = '#FF4444';
-    ctx.font = 'bold 22px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('游戏结束', centerX, centerY);
-    ctx.restore();
+    // 延迟1秒显示"游戏结束"文字，让玩家先看到爆炸效果
+    if (this.gameOverTimer >= 1000) {
+      this.renderer.renderOverlay(0.6, '#000000');
+      var ctx = this.renderer.ctx;
+      var centerX = this.renderer.screenWidth / 2;
+      var centerY = this.renderer.screenHeight / 2;
+      ctx.save();
+      ctx.fillStyle = '#FF4444';
+      ctx.font = 'bold 22px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('游戏结束', centerX, centerY);
+      ctx.restore();
+    }
   }
 
   if (this.levelComplete) {
