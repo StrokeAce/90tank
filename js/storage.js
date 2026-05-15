@@ -80,7 +80,8 @@ var Storage = {
       stage: 1,
       lives: 3,
       score: 0,
-      stars: 0
+      stars: 0,
+      stars2: 0
     });
   },
 

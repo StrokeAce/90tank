@@ -109,6 +109,8 @@ GameScene.prototype._loadStage = function() {
     levelData = Maps.getLevel(0);
   }
 
+  var progress = Storage.getGameProgress();
+
   this.gameMap = new GameMap();
   this.gameMap.loadLevel(levelData);
 
@@ -126,9 +128,17 @@ GameScene.prototype._loadStage = function() {
   this.powerupRespawnTimer = 0;
 
   this._spawnPlayer1();
+  if (this.player1 && this.stage > 0) {
+    this.player1.starLevel = progress.stars;
+    this.player1._applyUpgrade();
+  }
 
   if (this.twoPlayer) {
     this._spawnPlayer2();
+    if (this.player2 && this.stage > 0) {
+      this.player2.starLevel = progress.stars2;
+      this.player2._applyUpgrade();
+    }
   }
 
   this.stageIntro = true;
@@ -904,7 +914,8 @@ GameScene.prototype._advanceToNextStage = function() {
     stage: nextStage + 1,
     lives: this.lives,
     score: this.score,
-    stars: this.player1 ? this.player1.starLevel : 0
+    stars: this.player1 ? this.player1.starLevel : 0,
+    stars2: (this.twoPlayer && this.player2) ? this.player2.starLevel : 0
   });
 
   this.stage = nextStage;
