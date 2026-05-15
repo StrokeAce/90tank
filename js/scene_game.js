@@ -129,14 +129,14 @@ GameScene.prototype._loadStage = function() {
 
   this._spawnPlayer1();
   if (this.player1 && this.stage > 0) {
-    this.player1.starLevel = progress.stars;
+    this.player1.starLevel = progress.stars || 0;
     this.player1._applyUpgrade();
   }
 
   if (this.twoPlayer) {
     this._spawnPlayer2();
     if (this.player2 && this.stage > 0) {
-      this.player2.starLevel = progress.stars2;
+      this.player2.starLevel = progress.stars2 || 0;
       this.player2._applyUpgrade();
     }
   }
@@ -951,6 +951,13 @@ GameScene.prototype._onPauseMenuClick = function(tx, ty) {
       this.paused = false;
       this.input._paused = false;
     } else if (tx >= centerX + 20 && tx <= centerX + 60) {
+      Storage.saveGameProgress({
+        stage: this.stage + 1,
+        lives: this.lives,
+        score: this.score,
+        stars: 0,
+        stars2: 0
+      });
       this.sceneManager.changeScene('menu');
     }
   }

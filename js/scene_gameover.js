@@ -27,6 +27,7 @@ GameOverScene.prototype.exit = function() {
 
 GameOverScene.prototype.handleTouchStart = function(e) {
   if (this.inputCooldown > 0) return;
+  Storage.clearProgress();
   this.sceneManager.changeScene('menu');
 };
 
