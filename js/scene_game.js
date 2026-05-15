@@ -147,6 +147,8 @@ GameScene.prototype._spawnPlayer1 = function() {
   var x = spawn.x * CONFIG.TILE.CELL_SIZE_SCALED;
   var y = spawn.y * CONFIG.TILE.CELL_SIZE_SCALED;
 
+  this._ensureSpawnPositionClear(x, y);
+
   this.player1 = new Tank(x, y, CONFIG.DIRECTION.UP, true, 0);
   this.player1.starLevel = 0;
   this.player1._applyUpgrade();
@@ -160,12 +162,98 @@ GameScene.prototype._spawnPlayer2 = function() {
   var x = spawn.x * CONFIG.TILE.CELL_SIZE_SCALED;
   var y = spawn.y * CONFIG.TILE.CELL_SIZE_SCALED;
 
+  this._ensureSpawnPositionClear(x, y);
+
   this.player2 = new Tank(x, y, CONFIG.DIRECTION.UP, true, 1);
   this.player2.starLevel = 0;
   this.player2._applyUpgrade();
   this.player2.setShield(CONFIG.GAME.SPAWN_PROTECTION_TIME);
 
   this._pushAwayEnemiesFromSpawn(this.player2);
+};
+
+GameScene.prototype._ensureSpawnPositionClear = function(x, y) {
+  var spawnSize = CONFIG.TANK.SIZE_SCALED;
+
+  for (var i = this.enemies.length - 1; i >= 0; i--) {
+    var enemy = this.enemies[i];
+    if (!enemy.alive) continue;
+
+    if (Utils.rectOverlap(x, y, spawnSize, spawnSize,
+                          enemy.x, enemy.y, enemy.width, enemy.height)) {
+      this._destroyEnemy(enemy, i);
+    }
+  }
+};
+
+GameScene.prototype._destroyEnemy = function(enemy, index) {
+  enemy.alive = false;
+  this.explosions.push(new Explosion(enemy.centerX(), enemy.centerY(), false));
+  
+  if (index !== undefined) {
+    this.enemies.splice(index, 1);
+    this.enemyAIs.splice(index, 1);
+  }
+  
+  if (enemy.owner && enemy.owner.isPlayer) {
+    Audio.playPlayerHit();
+  }
+};
+
+GameScene.prototype._pushTankAwayFromPosition = function(tank, posX, posY) {
+  if (!tank || !tank.alive) return;
+
+  var tankSize = CONFIG.TANK.SIZE_SCALED;
+  var mapW = CONFIG.TILE.MAP_WIDTH_SCALED;
+  var mapH = CONFIG.TILE.MAP_HEIGHT_SCALED;
+
+  var directions = [
+    { dx: -tankSize, dy: 0 },
+    { dx: tankSize, dy: 0 },
+    { dx: 0, dy: -tankSize },
+    { dx: 0, dy: tankSize },
+    { dx: -tankSize, dy: -tankSize },
+    { dx: tankSize, dy: -tankSize },
+    { dx: -tankSize, dy: tankSize },
+    { dx: tankSize, dy: tankSize }
+  ];
+
+  for (var d = 0; d < directions.length; d++) {
+    var dir = directions[d];
+    var newX = tank.x + dir.dx;
+    var newY = tank.y + dir.dy;
+
+    newX = Utils.clamp(newX, 0, mapW - tank.width);
+    newY = Utils.clamp(newY, 0, mapH - tank.height);
+
+    var canMove = true;
+
+    for (var i = 0; i < this.enemies.length; i++) {
+      var other = this.enemies[i];
+      if (!other.alive || other.spawning) continue;
+      if (Utils.rectOverlap(newX, newY, tank.width, tank.height,
+                            other.x, other.y, other.width, other.height)) {
+        canMove = false;
+        break;
+      }
+    }
+
+    if (canMove && tank.isPlayer) {
+      var otherPlayer = tank === this.player1 ? this.player2 : this.player1;
+      if (otherPlayer && otherPlayer.alive && !otherPlayer.spawning) {
+        if (Utils.rectOverlap(newX, newY, tank.width, tank.height,
+                              otherPlayer.x, otherPlayer.y, otherPlayer.width, otherPlayer.height)) {
+          canMove = false;
+        }
+      }
+    }
+
+    if (canMove) {
+      tank.x = newX;
+      tank.y = newY;
+      break;
+    }
+  }
 };
 
 GameScene.prototype._pushAwayEnemiesFromSpawn = function(playerTank) {
@@ -240,7 +328,7 @@ GameScene.prototype._spawnEnemy = function() {
     var pt = playerTanks[i];
     if (Utils.rectOverlap(x, y, CONFIG.TANK.SIZE_SCALED, CONFIG.TANK.SIZE_SCALED,
                           pt.x, pt.y, pt.width, pt.height)) {
-      return;
+      this._pushTankAwayFromPosition(pt, x, y);
     }
   }
 
