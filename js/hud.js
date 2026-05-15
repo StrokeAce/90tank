@@ -27,6 +27,7 @@ HUD.prototype.update = function(data) {
 
 HUD.prototype.render = function(ctx) {
   this._renderEnemyIcons(ctx);
+  this._renderStageInfo(ctx);
   this._renderPlayerLivesCount(ctx);
 };
 
@@ -89,14 +90,23 @@ HUD.prototype._renderPlayerInfo = function(ctx) {
 };
 
 HUD.prototype._renderStageInfo = function(ctx) {
-  var stageX = CONFIG.TILE.MAP_OFFSET_X + CONFIG.TILE.MAP_WIDTH_SCALED + 8;
-  var stageY = CONFIG.TILE.MAP_OFFSET_Y + CONFIG.TILE.MAP_HEIGHT_SCALED - 8;
+  var mapRight = CONFIG.TILE.MAP_OFFSET_X + CONFIG.TILE.MAP_WIDTH_SCALED;
+  var mapTop = CONFIG.TILE.MAP_OFFSET_Y;
+  var borderW = CONFIG.TILE.BORDER_WIDTH;
+
+  var stageX = mapRight + borderW + 4;
+  var stageY = mapTop + 120;
 
   ctx.fillStyle = CONFIG.COLOR.HUD_FLAG_ICON;
+  ctx.fillRect(stageX + 3, stageY, 1, 12);
+  ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
+  ctx.fillRect(stageX + 4, stageY, 6, 5);
+
+  ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
   ctx.font = '8px monospace';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  ctx.fillText(this.stage + '关', stageX, stageY);
+  ctx.fillText(String(this.stage), stageX + 2, stageY + 14);
 };
 
 HUD.prototype._renderPlayerLivesCount = function(ctx) {

@@ -47,7 +47,7 @@ MenuScene.prototype.handleTouchStart = function(e) {
     return;
   }
 
-  var startY = centerY - 40;
+  var startY = 160;
   var optionHeight = 25;
 
   for (var i = 0; i < this.options.length; i++) {
