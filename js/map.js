@@ -194,9 +194,9 @@ GameMap.prototype.checkBulletCollision = function(bullet) {
   var bh = bullet.height;
 
   var startCol = Math.floor(bx / this.cellSize);
-  var endCol = Math.floor((bx + bw - 1) / this.cellSize);
+  var endCol = Math.floor((bx + bw) / this.cellSize);
   var startRow = Math.floor(by / this.cellSize);
-  var endRow = Math.floor((by + bh - 1) / this.cellSize);
+  var endRow = Math.floor((by + bh) / this.cellSize);
 
   var hitTiles = [];
 
