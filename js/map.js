@@ -231,7 +231,10 @@ GameMap.prototype.checkBulletCollision = function(bullet) {
       } else if (tile === CONFIG.TILE_TYPE.STEEL) {
         hitTiles.push({ col: col, row: row, type: 'steel' });
       } else if (tile === CONFIG.TILE_TYPE.EAGLE) {
-        hitTiles.push({ col: col, row: row, type: 'eagle' });
+        // 玩家子弹不能击中自己的鹰旗
+        if (!bullet.owner || !bullet.owner.isPlayer) {
+          hitTiles.push({ col: col, row: row, type: 'eagle' });
+        }
       } else if (tile === CONFIG.TILE_TYPE.FOREST) {
         if (bullet.canPierceForest) {
           hitTiles.push({ col: col, row: row, type: 'forest' });
