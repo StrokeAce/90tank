@@ -91,6 +91,14 @@ var Storage = {
 
   clearProgress: function() {
     this.remove('progress');
+  },
+
+  getMoveStyle: function() {
+    return this.load('moveStyle', 'crosspad');
+  },
+
+  setMoveStyle: function(style) {
+    this.save('moveStyle', style);
   }
 };
 

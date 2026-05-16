@@ -317,8 +317,6 @@ GameMap.prototype.fortifyBase = function(useSteel) {
     { col: eagleCol - 1, row: eagleRow },
     { col: eagleCol + 2, row: eagleRow },
     { col: eagleCol - 1, row: eagleRow + 1 },
-    { col: eagleCol, row: eagleRow + 1 },
-    { col: eagleCol + 1, row: eagleRow + 1 },
     { col: eagleCol + 2, row: eagleRow + 1 }
   ];
 
