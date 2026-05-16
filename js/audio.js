@@ -188,7 +188,6 @@ var Audio = {
   _playTone: function(frequency, duration, type, vol) {
     if (this._muted || frequency <= 0) return;
     try {
-      var ctx = wx.createInnerAudioContext();
       var sampleRate = 8000;
       var numSamples = Math.floor(sampleRate * duration / 1000);
       numSamples = Math.max(numSamples, 1);
@@ -221,20 +220,16 @@ var Audio = {
       var base64 = this._arrayBufferToBase64(buffer);
       var wavBase64 = this._createWavBase64(base64, numSamples, sampleRate, 1, 8);
       if (!wavBase64) return;
-      
-      var tempFilePath = wx.env.USER_DATA_PATH + '/temp_sound_' + Date.now() + '.wav';
-      var fileManager = wx.getFileSystemManager();
-      var arrayBuffer = this._base64ToArrayBuffer(wavBase64);
-      fileManager.writeFileSync(tempFilePath, arrayBuffer, 'binary');
-      
-      ctx.src = tempFilePath;
+
+      var ctx = wx.createInnerAudioContext();
+      ctx.src = 'data:audio/wav;base64,' + wavBase64;
       ctx.volume = Math.min(1, volume * 2);
       ctx.play();
       ctx.onEnded(function() {
         ctx.destroy();
-        try {
-          fileManager.unlinkSync(tempFilePath);
-        } catch(e) {}
+      });
+      ctx.onError(function() {
+        ctx.destroy();
       });
     } catch (e) {}
   },

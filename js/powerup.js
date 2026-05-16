@@ -78,6 +78,8 @@ function PowerUp(x, y, type) {
   this.frameTimer = 0;
   this.frame = 0;
   this.flashInterval = 200;
+  this.lifetime = 0;
+  this.maxLifetime = 15000;
 }
 
 PowerUp.prototype = Object.create(Entity.prototype);
@@ -90,6 +92,11 @@ PowerUp.prototype.update = function(dt) {
   if (this.frameTimer >= this.flashInterval) {
     this.frameTimer = 0;
     this.frame = (this.frame + 1) % 2;
+  }
+
+  this.lifetime += dt * 1000;
+  if (this.lifetime >= this.maxLifetime) {
+    this.alive = false;
   }
 };
 

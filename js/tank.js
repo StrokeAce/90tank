@@ -59,6 +59,10 @@ function Tank(x, y, direction, isPlayer, playerIndex) {
   this.flashTimer = 0;
   this.flashOn = false;
 
+  this.isRedFlash = false;
+  this.redFlashTimer = 0;
+  this.redFlashOn = false;
+
   this.moveSoundTimer = 0;
 }
 
@@ -92,6 +96,14 @@ Tank.prototype.update = function(dt) {
     this.flashOn = !this.flashOn;
   } else {
     this.flashOn = false;
+  }
+
+  if (this.isRedFlash) {
+    this.redFlashTimer += dt * 1000;
+    if (this.redFlashTimer >= 150) {
+      this.redFlashTimer = 0;
+      this.redFlashOn = !this.redFlashOn;
+    }
   }
 
   this._updateBullets(dt);
@@ -333,6 +345,20 @@ Tank.prototype.render = function(ctx) {
   }
 
   ctx.globalAlpha = 1.0;
+
+  if (!this.isPlayer && this.isRedFlash) {
+    if (this.redFlashOn) {
+      ctx.globalAlpha = 0.65;
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.globalAlpha = 1.0;
+    } else {
+      ctx.globalAlpha = 0.15;
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      ctx.globalAlpha = 1.0;
+    }
+  }
 
   if (this.shielded && this.shieldFrame < sprites.shield.length && sprites.shield[this.shieldFrame]) {
     var shieldSprite = sprites.shield[this.shieldFrame];

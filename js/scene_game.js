@@ -55,12 +55,10 @@ function GameScene(renderer, sceneManager) {
   this.player2RespawnTimer = 0;
   this.playerDeadTimer = 0;
 
-  this.powerupEnemyCounter = 0;
   this.activePowerup = null;
-  this.powerupRespawnTimer = 0;
-  
-  this.powerupTypes = [5, 5, 5, 6, 0, 1, 2, 3, 4];
-  this.currentPowerupIndex = 0;
+  this.redFlashTankCount = 3;
+  this.redFlashTankIndices = [];
+  this.enemiesSpawnedForRedFlash = 0;
 }
 
 GameScene.prototype.enter = function(data) {
@@ -120,12 +118,9 @@ GameScene.prototype._loadStage = function() {
   this.nextSpawnPoint = 0;
   this.freezeTimer = 0;
   this.baseSteelTimer = 0;
-  this.powerupEnemyCounter = 0;
   this.activePowerup = null;
-  
-  this.powerupTypes = [5, 5, 5, 6, 0, 1, 2, 3, 4];
-  this.currentPowerupIndex = 0;
-  this.powerupRespawnTimer = 0;
+
+  this._assignRedFlashTanks();
 
   this._spawnPlayer1();
   if (this.player1 && this.stage > 0) {
@@ -355,6 +350,11 @@ GameScene.prototype._spawnEnemy = function() {
   enemy.setEnemyType(enemyType);
   enemy.spawning = true;
 
+  if (this.redFlashTankIndices.indexOf(this.enemiesSpawned) !== -1) {
+    enemy.isRedFlash = true;
+    enemy.redFlashOn = true;
+  }
+
   this.enemies.push(enemy);
 
   var ai = new EnemyAI(enemy, this.gameMap, playerTanks);
@@ -387,17 +387,8 @@ GameScene.prototype.update = function(dt) {
     this.stageIntroTimer += dt * 1000;
     if (this.stageIntroTimer >= CONFIG.GAME.STAGE_INTRO_DURATION) {
       this.stageIntro = false;
-      this._spawnNextPowerup();
     }
     return;
-  }
-
-  if (!this.activePowerup && this.currentPowerupIndex < this.powerupTypes.length) {
-    this.powerupRespawnTimer += dt * 1000;
-    if (this.powerupRespawnTimer >= CONFIG.GAME.POWERUP_RESPAWN_INTERVAL) {
-      this._spawnNextPowerup();
-      this.powerupRespawnTimer = 0;
-    }
   }
 
   if (this.gameOver) {
@@ -417,7 +408,7 @@ GameScene.prototype.update = function(dt) {
 
   if (this.levelComplete) {
     this.levelCompleteTimer += dt * 1000;
-    if (this.levelCompleteTimer >= CONFIG.GAME.LEVEL_COMPLETE_DELAY) {
+    if (this.levelCompleteTimer >= 2000) {
       this._advanceToNextStage();
     }
     return;
@@ -678,6 +669,10 @@ GameScene.prototype._checkBulletTankCollisions = function() {
                 var enemyType = target.enemyType || 0;
                 var scoreValues = [100, 200, 300, 400];
                 self.score += scoreValues[enemyType] || 100;
+                if (target.isRedFlash) {
+                  target.isRedFlash = false;
+                  self._spawnPowerupFromEnemy(target);
+                }
               }
           } else {
             if (shooter.isPlayer) {
@@ -738,34 +733,53 @@ GameScene.prototype._checkPowerUpCollisions = function() {
   }
 };
 
-GameScene.prototype._spawnPowerup = function() {
-  var px = Utils.randomInt(1, 22) * CONFIG.TILE.CELL_SIZE_SCALED;
-  var py = Utils.randomInt(1, 20) * CONFIG.TILE.CELL_SIZE_SCALED;
-  var type = Utils.randomInt(0, 5);
-  var powerup = new PowerUp(px, py, type);
-  this.powerups.push(powerup);
-  this.activePowerup = powerup;
-  Audio.playPropAppear();
-};
-
-GameScene.prototype._spawnNextPowerup = function() {
-  if (this.currentPowerupIndex >= this.powerupTypes.length) {
-    return;
+GameScene.prototype._assignRedFlashTanks = function() {
+  this.redFlashTankIndices = [];
+  var totalEnemies = this.enemyQueue.length;
+  if (totalEnemies === 0) return;
+  
+  var count = Math.min(this.redFlashTankCount, totalEnemies);
+  var candidates = [];
+  for (var i = 0; i < totalEnemies; i++) {
+    candidates.push(i);
   }
   
-  var type = this.powerupTypes[this.currentPowerupIndex];
+  for (var i = candidates.length - 1; i > 0; i--) {
+    var j = Utils.randomInt(0, i);
+    var temp = candidates[i];
+    candidates[i] = candidates[j];
+    candidates[j] = temp;
+  }
+  
+  for (var i = 0; i < count; i++) {
+    this.redFlashTankIndices.push(candidates[i]);
+  }
+};
+
+GameScene.prototype._spawnPowerupFromEnemy = function(enemy) {
+  if (this.activePowerup && this.activePowerup.alive) {
+    this.activePowerup.alive = false;
+    this.activePowerup = null;
+  }
+  
+  var type = Utils.randomInt(0, 6);
+  var col = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_COLS - 2);
+  var row = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_ROWS - 2);
+  var px = col * CONFIG.TILE.CELL_SIZE_SCALED * 2;
+  var py = row * CONFIG.TILE.CELL_SIZE_SCALED * 2;
+  
   var powerup = null;
-  var maxAttempts = 100;
+  var maxAttempts = 50;
   var attempts = 0;
   
   while (!powerup && attempts < maxAttempts) {
-    var col = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_COLS - 2);
-    var row = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_ROWS - 2);
-    var px = col * CONFIG.TILE.CELL_SIZE_SCALED * 2;
-    var py = row * CONFIG.TILE.CELL_SIZE_SCALED * 2;
-    
     if (this._isValidPowerupPosition(px, py)) {
       powerup = new PowerUp(px, py, type);
+    } else {
+      var col = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_COLS - 2);
+      var row = Utils.randomInt(1, CONFIG.TILE.BIG_TILE_ROWS - 2);
+      px = col * CONFIG.TILE.CELL_SIZE_SCALED * 2;
+      py = row * CONFIG.TILE.CELL_SIZE_SCALED * 2;
     }
     attempts++;
   }
@@ -773,7 +787,6 @@ GameScene.prototype._spawnNextPowerup = function() {
   if (powerup) {
     this.powerups.push(powerup);
     this.activePowerup = powerup;
-    this.currentPowerupIndex++;
     Audio.playPropAppear();
   }
 };
@@ -853,8 +866,6 @@ GameScene.prototype._applyPowerUp = function(result, player) {
       }
       break;
   }
-  
-  this.powerupRespawnTimer = 0;
 };
 
 GameScene.prototype._updateExplosions = function(dt) {
@@ -935,6 +946,8 @@ GameScene.prototype._triggerGameOver = function() {
   if (this.gameOver) return;
   this.gameOver = true;
   this.gameOverTimer = 0;
+  this.activePowerup = null;
+  this.powerups = [];
   Audio.stopBGM();
   Audio.playGameOver();
 };
