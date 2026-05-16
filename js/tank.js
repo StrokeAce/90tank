@@ -192,23 +192,28 @@ Tank.prototype.fire = function() {
   var halfTank = this.width / 2;
   var halfBullet = bulletSize / 2;
 
-  switch (this.direction) {
-    case CONFIG.DIRECTION.UP:
-      bx = this.x + halfTank - halfBullet;
-      by = this.y - bulletSize;
-      break;
-    case CONFIG.DIRECTION.RIGHT:
-      bx = this.x + this.width;
-      by = this.y + halfTank - halfBullet;
-      break;
-    case CONFIG.DIRECTION.DOWN:
-      bx = this.x + halfTank - halfBullet;
-      by = this.y + this.height;
-      break;
-    case CONFIG.DIRECTION.LEFT:
-      bx = this.x - bulletSize;
-      by = this.y + halfTank - halfBullet;
-      break;
+  if (this.isPlayer) {
+    bx = this.x + halfTank - halfBullet;
+    by = this.y + halfTank - halfBullet;
+  } else {
+    switch (this.direction) {
+      case CONFIG.DIRECTION.UP:
+        bx = this.x + halfTank - halfBullet;
+        by = this.y - bulletSize;
+        break;
+      case CONFIG.DIRECTION.RIGHT:
+        bx = this.x + this.width;
+        by = this.y + halfTank - halfBullet;
+        break;
+      case CONFIG.DIRECTION.DOWN:
+        bx = this.x + halfTank - halfBullet;
+        by = this.y + this.height;
+        break;
+      case CONFIG.DIRECTION.LEFT:
+        bx = this.x - bulletSize;
+        by = this.y + halfTank - halfBullet;
+        break;
+    }
   }
 
   var bullet = new Bullet(bx, by, this.direction, this.bulletSpeed, this, this.canPierceSteel, this.bulletDamage, this.canPierceForest, this.canPierceWater);
