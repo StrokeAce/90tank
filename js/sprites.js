@@ -263,15 +263,15 @@ var Sprites = {
             ctx.fillStyle = highlightColor;
             ctx.fillRect(7, -3, 2, 3);
           } else if (starLevel === 2) {
-            ctx.fillStyle = highlightColor;
+            ctx.fillStyle = '#FFD700';
             ctx.fillRect(7, 0, 2, 5);
             ctx.fillStyle = redColor;
-            ctx.fillRect(7, -5, 2, 5);
+            ctx.fillRect(7, -3, 2, 3);
           } else {
-            ctx.fillStyle = highlightColor;
+            ctx.fillStyle = '#FFD700';
             ctx.fillRect(6, 0, 4, 5);
             ctx.fillStyle = redColor;
-            ctx.fillRect(6, -5, 4, 5);
+            ctx.fillRect(6, -3, 4, 3);
           }
         } else if (direction === 2) {
           ctx.fillStyle = trackColor;
@@ -296,15 +296,15 @@ var Sprites = {
             ctx.fillStyle = highlightColor;
             ctx.fillRect(7, 14, 2, 3);
           } else if (starLevel === 2) {
-            ctx.fillStyle = highlightColor;
+            ctx.fillStyle = '#FFD700';
             ctx.fillRect(7, 11, 2, 5);
             ctx.fillStyle = redColor;
-            ctx.fillRect(7, 16, 2, 5);
+            ctx.fillRect(7, 16, 2, 3);
           } else {
-            ctx.fillStyle = highlightColor;
+            ctx.fillStyle = '#FFD700';
             ctx.fillRect(6, 11, 4, 5);
             ctx.fillStyle = redColor;
-            ctx.fillRect(6, 16, 4, 5);
+            ctx.fillRect(6, 16, 4, 3);
           }
         } else if (direction === 1) {
           ctx.fillStyle = trackColor;
@@ -329,15 +329,15 @@ var Sprites = {
             ctx.fillStyle = highlightColor;
             ctx.fillRect(14, 7, 3, 2);
           } else if (starLevel === 2) {
-            ctx.fillStyle = highlightColor;
-            ctx.fillRect(11, 7, 5, 2);
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(11, 7, 6, 2);
             ctx.fillStyle = redColor;
-            ctx.fillRect(16, 7, 5, 2);
+            ctx.fillRect(17, 7, 3, 2);
           } else {
-            ctx.fillStyle = highlightColor;
-            ctx.fillRect(11, 6, 5, 4);
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(11, 6, 6, 4);
             ctx.fillStyle = redColor;
-            ctx.fillRect(16, 6, 5, 4);
+            ctx.fillRect(17, 6, 3, 4);
           }
         } else {
           ctx.fillStyle = trackColor;
@@ -362,15 +362,15 @@ var Sprites = {
             ctx.fillStyle = highlightColor;
             ctx.fillRect(-3, 7, 3, 2);
           } else if (starLevel === 2) {
-            ctx.fillStyle = highlightColor;
-            ctx.fillRect(-2, 7, 5, 2);
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(-3, 7, 6, 2);
             ctx.fillStyle = redColor;
-            ctx.fillRect(-7, 7, 5, 2);
+            ctx.fillRect(-5, 7, 3, 2);
           } else {
-            ctx.fillStyle = highlightColor;
-            ctx.fillRect(-2, 6, 5, 4);
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(-3, 6, 6, 4);
             ctx.fillStyle = redColor;
-            ctx.fillRect(-7, 6, 5, 4);
+            ctx.fillRect(-5, 6, 3, 4);
           }
         }
       }
