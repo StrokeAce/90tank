@@ -195,9 +195,9 @@ var CONFIG = {
     POWERUP_RESPAWN_INTERVAL: 2000,
     ENEMY_SPAWN_INTERVAL: 3000,
     ENEMY_SPAWN_POINTS: [
-      { x: 9, y: 0 },
+      { x: 2, y: 0 },
       { x: 21, y: 0 },
-      { x: 33, y: 0 }
+      { x: 41, y: 0 }
     ],
     PLAYER1_SPAWN: { x: 17, y: 24 },
     PLAYER2_SPAWN: { x: 25, y: 24 },
