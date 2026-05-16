@@ -19,7 +19,7 @@ function StageSelectScene(renderer, sceneManager) {
 StageSelectScene.prototype.enter = function(data) {
   this.twoPlayer = data ? data.twoPlayer : false;
   this.selectedStage = 0;
-  this.maxStage = this.totalLevels - 1;
+  this.maxStage = Storage.getMaxStage() - 1;
   this.blinkTimer = 0;
 };
 

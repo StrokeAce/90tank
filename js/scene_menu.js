@@ -53,6 +53,9 @@ MenuScene.prototype.handleTouchStart = function(e) {
   for (var i = 0; i < this.options.length; i++) {
     var optY = startY + i * optionHeight;
     if (ty >= optY - 10 && ty <= optY + optionHeight) {
+      if (i === 1) {
+        return;
+      }
       this.selectedOption = i;
       this._confirmSelection();
       return;
@@ -61,8 +64,14 @@ MenuScene.prototype.handleTouchStart = function(e) {
 
   if (tx < centerX) {
     this.selectedOption = (this.selectedOption - 1 + this.options.length) % this.options.length;
+    if (this.selectedOption === 1) {
+      this.selectedOption = 0;
+    }
   } else {
     this.selectedOption = (this.selectedOption + 1) % this.options.length;
+    if (this.selectedOption === 1) {
+      this.selectedOption = 0;
+    }
   }
   this.inputCooldown = 0.2;
 };
@@ -84,6 +93,10 @@ MenuScene.prototype.update = function(dt) {
 };
 
 MenuScene.prototype._confirmSelection = function() {
+  if (this.selectedOption === 1) {
+    return;
+  }
+  
   switch (this.selectedOption) {
     case 0:
       this.sceneManager.changeScene('stageSelect', { twoPlayer: false });
@@ -128,12 +141,27 @@ MenuScene.prototype.render = function() {
   for (var i = 0; i < this.options.length; i++) {
     var y = startY + i * optionHeight;
     var isSelected = i === this.selectedOption;
-    if (isSelected && this.blinkOn) {
+    var isDisabled = i === 1;
+    
+    if (isSelected && this.blinkOn && !isDisabled) {
       ctx.fillStyle = CONFIG.COLOR.PLAYER1_BODY;
       ctx.fillText('>', centerX - 70, y);
     }
-    ctx.fillStyle = isSelected ? CONFIG.COLOR.PLAYER1_BODY : CONFIG.COLOR.HUD_TEXT;
+    
+    if (isDisabled) {
+      ctx.fillStyle = '#666666';
+    } else {
+      ctx.fillStyle = isSelected ? CONFIG.COLOR.PLAYER1_BODY : CONFIG.COLOR.HUD_TEXT;
+    }
+    
     ctx.fillText(this.options[i], centerX, y);
+    
+    if (isDisabled) {
+      ctx.fillStyle = '#FF4444';
+      ctx.font = '8px monospace';
+      ctx.fillText('未开放', centerX + 55, y + 4);
+      ctx.font = '14px monospace';
+    }
   }
 
   ctx.fillStyle = CONFIG.COLOR.HUD_TEXT;
