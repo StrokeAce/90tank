@@ -45,13 +45,13 @@ function loadImage(src) {
 
 function loadPowerupIcons() {
   var icons = {
-    0: '/prop/alam.png',
-    1: '/prop/bomb.png',
-    2: '/prop/helmet.png',
-    3: '/prop/shovel.png',
-    4: '/prop/tank.png',
-    5: '/prop/star.png',
-    6: '/prop/gun.png'
+    0: 'prop/alam.png',
+    1: 'prop/bomb.png',
+    2: 'prop/helmet.png',
+    3: 'prop/shovel.png',
+    4: 'prop/tank.png',
+    5: 'prop/star.png',
+    6: 'prop/gun.png'
   };
   
   var promises = [];

@@ -1,6 +1,6 @@
 {
   "libVersion": "3.15.2",
-  "projectname": "tank",
+  "projectname": "tank90",
   "condition": {},
   "setting": {
     "urlCheck": false,
@@ -10,7 +10,7 @@
     "preloadBackgroundData": false,
     "autoAudits": false,
     "useApiHook": true,
-    "showShadowRootInWxmlPanel": true,
+    "showShadowRootInWxmlPanel": false,
     "useStaticServer": false,
     "useLanDebug": false,
     "showES6CompileOption": false,

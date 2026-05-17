@@ -25,24 +25,24 @@ var Audio = {
 
   _loadSounds: function() {
     var soundFiles = {
-      move: '/audio/move.mp3',
-      playerMove: '/audio/player_move.mp3',
-      playerShoot: '/audio/player_shoot.mp3',
-      playerHit: '/audio/hit_player.mp3',
-      eatProp: '/audio/eat_prop.mp3',
-      propAppear: '/audio/prop_appear.mp3',
-      enemyShoot: '/audio/enemy_shoot.mp3',
-      pause: '/audio/pause.mp3',
-      enemyBoom: '/audio/enemy_boom.mp3',
-      playerBoom: '/audio/player_boom.mp3',
-      gameOver: '/audio/game_over.mp3',
-      moreLife: '/audio/more_life.mp3',
-      enemyMove: '/audio/enemy_move.mp3',
-      hitSteel: '/audio/hit_steel.mp3',
-      hitSteelEnemy: '/audio/hit_steel_enemy.mp3',
-      hitBrick: '/audio/hit_brick.mp3',
-      menu: '/audio/menu.mp3',
-      propBoom: '/audio/prop_boom.mp3'
+      move: 'audio/move.mp3',
+      playerMove: 'audio/player_move.mp3',
+      playerShoot: 'audio/player_shoot.mp3',
+      playerHit: 'audio/hit_player.mp3',
+      eatProp: 'audio/eat_prop.mp3',
+      propAppear: 'audio/prop_appear.mp3',
+      enemyShoot: 'audio/enemy_shoot.mp3',
+      pause: 'audio/pause.mp3',
+      enemyBoom: 'audio/enemy_boom.mp3',
+      playerBoom: 'audio/player_boom.mp3',
+      gameOver: 'audio/game_over.mp3',
+      moreLife: 'audio/more_life.mp3',
+      enemyMove: 'audio/enemy_move.mp3',
+      hitSteel: 'audio/hit_steel.mp3',
+      hitSteelEnemy: 'audio/hit_steel_enemy.mp3',
+      hitBrick: 'audio/hit_brick.mp3',
+      menu: 'audio/menu.mp3',
+      propBoom: 'audio/prop_boom.mp3'
     };
 
     for (var name in soundFiles) {
@@ -60,7 +60,7 @@ var Audio = {
   _initBGM: function() {
     try {
       this._bgmAudio = wx.createInnerAudioContext();
-      this._bgmAudio.src = '/audio/background.mp3';
+      this._bgmAudio.src = 'audio/background.mp3';
       this._bgmAudio.volume = this._bgmVolume;
       this._bgmAudio.loop = false;
     } catch (e) {
@@ -71,7 +71,7 @@ var Audio = {
   _initStartBGM: function() {
     try {
       this._startBgmAudio = wx.createInnerAudioContext();
-      this._startBgmAudio.src = '/audio/game_start.mp3';
+      this._startBgmAudio.src = 'audio/game_start.mp3';
       this._startBgmAudio.volume = this._bgmVolume;
       this._startBgmAudio.loop = false;
     } catch (e) {

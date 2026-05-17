@@ -76,32 +76,39 @@ function createCanvas(w, h) {
     canvas.height = h;
     return canvas;
   } catch (e) {
-    return {
-      width: w,
-      height: h,
-      _ctx: {
-        fillStyle: '#000',
-        save: function(){},
-        restore: function(){},
-        scale: function(){},
-        translate: function(){},
-        fillRect: function(){},
-        drawImage: function(){},
-        beginPath: function(){},
-        arc: function(){},
-        fill: function(){},
-        stroke: function(){},
-        lineWidth: 1,
-        strokeStyle: '#000',
-        globalAlpha: 1,
-        font: '12px monospace',
-        textAlign: 'left',
-        textBaseline: 'top'
-      },
-      getContext: function() {
-        return this._ctx;
-      }
-    };
+    try {
+      var offCanvas = wx.createCanvas();
+      offCanvas.width = w;
+      offCanvas.height = h;
+      return offCanvas;
+    } catch (e2) {
+      return {
+        width: w,
+        height: h,
+        _ctx: {
+          fillStyle: '#000',
+          save: function(){},
+          restore: function(){},
+          scale: function(){},
+          translate: function(){},
+          fillRect: function(){},
+          drawImage: function(){},
+          beginPath: function(){},
+          arc: function(){},
+          fill: function(){},
+          stroke: function(){},
+          lineWidth: 1,
+          strokeStyle: '#000',
+          globalAlpha: 1,
+          font: '12px monospace',
+          textAlign: 'left',
+          textBaseline: 'top'
+        },
+        getContext: function() {
+          return this._ctx;
+        }
+      };
+    }
   }
 }
 

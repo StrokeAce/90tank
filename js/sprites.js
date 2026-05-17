@@ -39,14 +39,14 @@ function loadImage(src) {
 
 function loadEagleImages() {
   var promises = [];
-  
-  promises.push(loadImage('/prop/eagle_live.png').then(function(img) {
+
+  promises.push(loadImage('prop/eagle_live.png').then(function(img) {
     eagleImages.live = img;
   }).catch(function() {
     console.log('⚠️ 鹰旗存活图片加载失败');
   }));
-  
-  promises.push(loadImage('/prop/eagle_over.png').then(function(img) {
+
+  promises.push(loadImage('prop/eagle_over.png').then(function(img) {
     eagleImages.over = img;
   }).catch(function() {
     console.log('⚠️ 鹰旗死亡图片加载失败');
